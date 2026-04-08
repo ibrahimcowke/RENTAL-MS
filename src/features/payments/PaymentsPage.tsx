@@ -10,36 +10,27 @@ import {
   ArrowUpRight,
   Filter,
   MoreVertical,
-  Calendar
+  Calendar,
+  Trash2,
+  Edit,
+  X
 } from 'lucide-react';
+import { useState } from 'react';
 import { useStore } from '../../store/useStore';
 
-const payments = [
-  { id: 1, tenant: 'Mohamed Abdi', property: 'Hodan Suite A', amount: 450, method: 'EVC Plus', date: '2024-04-05', status: 'paid', code: 'TX-99218' },
-  { id: 2, tenant: 'Fadumo Hirsi', property: 'Karaan Heights', amount: 350, method: 'EVC Plus', date: '2024-04-03', status: 'paid', code: 'TX-88122' },
-  { id: 3, tenant: 'Ahmed Duale', property: 'Wadajir Commercial', amount: 1200, method: 'Cash', date: '2024-04-01', status: 'partial', code: null },
-  { id: 4, tenant: 'Sahra Yasin', property: 'Bondheere Corner', amount: 500, method: 'e-Dahab', date: '2024-03-28', status: 'overdue', code: null },
-  { id: 5, tenant: 'Ali Jeyte', property: 'Daynile Family Villa', amount: 800, method: 'EVC Plus', date: '2024-04-07', status: 'paid', code: 'TX-11223' },
-];
-
 const PaymentsPage = () => {
-  const { language, currency } = useStore();
+  const { language, currency, payments, deletePayment, updatePayment } = useStore();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [editingPayment, setEditingPayment] = useState<any>(null);
 
-  const getMethodIcon = (method: string) => {
-    switch (method) {
-      case 'EVC Plus': 
-      case 'e-Dahab': return <Smartphone className="w-4 h-4" />;
-      case 'Cash': return <Banknote className="w-4 h-4" />;
-      default: return <CreditCard className="w-4 h-4" />;
-    }
-  };
+  const filteredPayments = payments.filter(p => 
+    p.tenant.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.method.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case 'paid': return 'bg-teal-100 text-teal-700 border-teal-200';
-      case 'partial': return 'bg-amber-100 text-amber-700 border-amber-200';
-      case 'overdue': return 'bg-red-100 text-red-700 border-red-200';
-      default: return 'bg-slate-100 text-slate-700 border-slate-200';
+  const handleDelete = (id: string) => {
+    if (window.confirm(language === 'so' ? 'Ma hubtaa inaad tirtirto lacag-bixintan?' : 'Are you sure you want to delete this payment record?')) {
+      deletePayment(id);
     }
   };
 
@@ -50,138 +41,206 @@ const PaymentsPage = () => {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
             <CreditCard className="w-8 h-8 text-primary" />
-            {language === 'so' ? 'Lacag-bixinta' : 'Rent Payments'}
+            {language === 'so' ? 'Lasocodka Lacagaha' : 'Payment Tracking'}
           </h1>
           <p className="text-slate-500 font-medium">
-            {language === 'so' ? 'Lasoco kirada laga soo bixiyay guryahaaga.' : 'Track incoming rent, overdue status and mobile money logs.'}
+            {language === 'so' ? 'Maamul dakhliga ka soo baxa guryaha iyo bixinta kirada.' : 'Record and audit rent collections and transaction codes.'}
           </p>
         </div>
         <button className="btn-primary">
           <Plus className="w-5 h-5" />
-          {language === 'so' ? 'Lacag-qabbado' : 'Record Payment'}
+          {language === 'so' ? 'Diiwaangali Lacag' : 'Record Payment'}
         </button>
       </div>
 
-      {/* Stats Summary */}
+      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass-card p-6 border-b-4 border-b-primary">
-          <div className="flex items-center gap-4">
-             <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
-                <CheckCircle2 className="w-6 h-6 text-primary" />
-             </div>
-             <div>
-                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Collected (Apr)</p>
-                <h3 className="text-2xl font-bold">{currency === 'USD' ? '$11,250' : 'SOS 281M'}</h3>
-             </div>
-          </div>
+        <div className="glass-card p-6 border-slate-100 bg-white shadow-sm flex items-center gap-4">
+           <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+              <CheckCircle2 className="w-6 h-6" />
+           </div>
+           <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{language === 'so' ? 'Bishaan la qabtay' : 'Collected This Month'}</p>
+              <p className="text-2xl font-bold text-slate-900">$8,450</p>
+           </div>
         </div>
-        <div className="glass-card p-6 border-b-4 border-b-amber-500">
-          <div className="flex items-center gap-4">
-             <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center">
-                <Clock className="w-6 h-6 text-amber-500" />
-             </div>
-             <div>
-                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Pending/Partial</p>
-                <h3 className="text-2xl font-bold">{currency === 'USD' ? '$1,400' : 'SOS 35M'}</h3>
-             </div>
-          </div>
+        <div className="glass-card p-6 border-slate-100 bg-white shadow-sm flex items-center gap-4">
+           <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
+              <Clock className="w-6 h-6" />
+           </div>
+           <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{language === 'so' ? 'Wali maqan' : 'Pending Rent'}</p>
+              <p className="text-2xl font-bold text-slate-900">$1,200</p>
+           </div>
         </div>
-        <div className="glass-card p-6 border-b-4 border-b-red-500">
-          <div className="flex items-center gap-4">
-             <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center">
-                <AlertCircle className="w-6 h-6 text-red-500" />
-             </div>
-             <div>
-                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Overdue (Risk)</p>
-                <h3 className="text-2xl font-bold">{currency === 'USD' ? '$500' : 'SOS 12.5M'}</h3>
-             </div>
-          </div>
+        <div className="glass-card p-6 border-slate-100 bg-white shadow-sm flex items-center gap-4">
+           <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
+              <ArrowUpRight className="w-6 h-6" />
+           </div>
+           <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{language === 'so' ? 'Dakhliga guud' : 'Total Revenue'}</p>
+              <p className="text-2xl font-bold text-slate-900">$94,200</p>
+           </div>
         </div>
       </div>
 
-      {/* Filters & Search */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-          <input 
-            type="text" 
-            placeholder={language === 'so' ? 'Raadi lacag-bixin (Magac ama Code)...' : 'Search by name or TX code...'}
-            className="input-field pl-12 h-12"
-          />
+      {/* Filter & Table Area */}
+      <div className="space-y-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1 group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-primary transition-colors" />
+            <input 
+              type="text" 
+              placeholder={language === 'so' ? 'Raadi kireye ama habka lacag-bixinta...' : 'Search by tenant or method...'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-11 pr-4 focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all shadow-sm"
+            />
+          </div>
+          <button className="flex items-center gap-2 bg-white border border-slate-200 px-4 py-3 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition-all">
+            <Filter className="w-5 h-5" />
+            {language === 'so' ? 'Maalmaha' : 'Last 30 Days'}
+          </button>
         </div>
-        <div className="flex gap-2">
-           <button className="px-4 py-2 bg-white border border-slate-200 rounded-xl flex items-center gap-2 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
-             <Filter className="w-4 h-4" /> Filter
-           </button>
-           <button className="px-4 py-2 bg-white border border-slate-200 rounded-xl flex items-center gap-2 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
-             <Calendar className="w-4 h-4" /> This Month
-           </button>
+
+        <div className="glass-card overflow-hidden border-slate-100 bg-white shadow-sm">
+           <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                 <thead>
+                    <tr className="bg-slate-50 border-b border-slate-100">
+                       <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{language === 'so' ? 'Kireyaha' : 'Tenant'}</th>
+                       <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{language === 'so' ? 'Qiimaha' : 'Amount'}</th>
+                       <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{language === 'so' ? 'Taariikhda' : 'Date'}</th>
+                       <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{language === 'so' ? 'Habka' : 'Method'}</th>
+                       <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{language === 'so' ? 'Xaaladda' : 'Status'}</th>
+                       <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">{language === 'so' ? 'Ficil' : 'Actions'}</th>
+                    </tr>
+                 </thead>
+                 <tbody className="divide-y divide-slate-50">
+                    {filteredPayments.map((payment) => (
+                      <tr key={payment.id} className="hover:bg-slate-50/50 transition-colors group">
+                         <td className="px-6 py-4">
+                            <p className="font-bold text-slate-900">{payment.tenant}</p>
+                         </td>
+                         <td className="px-6 py-4">
+                            <p className="font-bold text-slate-900">${payment.amount}</p>
+                         </td>
+                         <td className="px-6 py-4">
+                            <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
+                               <Calendar className="w-3 h-3" />
+                               {payment.date}
+                            </div>
+                         </td>
+                         <td className="px-6 py-4">
+                            <div className="flex items-center gap-2">
+                               {payment.method === 'EVC Plus' || payment.method === 'e-Dahab' ? (
+                                 <Smartphone className="w-4 h-4 text-blue-500" />
+                               ) : (
+                                 <Banknote className="w-4 h-4 text-emerald-500" />
+                               )}
+                               <span className="text-xs font-bold text-slate-700">{payment.method}</span>
+                            </div>
+                         </td>
+                         <td className="px-6 py-4">
+                            <span className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest inline-flex items-center gap-1.5 ${
+                               payment.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 
+                               payment.status === 'overdue' ? 'bg-red-100 text-red-700' : 
+                               'bg-amber-100 text-amber-700'
+                            }`}>
+                               <div className={`w-1 h-1 rounded-full ${
+                                 payment.status === 'paid' ? 'bg-emerald-500' : 
+                                 payment.status === 'overdue' ? 'bg-red-500' : 
+                                 'bg-amber-500'
+                               }`} />
+                               {payment.status}
+                            </span>
+                         </td>
+                         <td className="px-6 py-4 text-right">
+                            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                               <button 
+                                 onClick={() => setEditingPayment(payment)}
+                                 className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-primary transition-all border border-transparent hover:border-slate-100"
+                               >
+                                 <Edit className="w-4 h-4" />
+                               </button>
+                               <button 
+                                 onClick={() => handleDelete(payment.id)}
+                                 className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-red-500 transition-all border border-transparent hover:border-slate-100"
+                               >
+                                 <Trash2 className="w-4 h-4" />
+                               </button>
+                            </div>
+                         </td>
+                      </tr>
+                    ))}
+                 </tbody>
+              </table>
+           </div>
         </div>
       </div>
 
-      {/* Payments Table */}
-      <div className="glass-card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/50">
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">Status</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">Tenant / Property</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">Amount</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">Method & Code</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">Date</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest leading-none"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {payments.map((pay) => (
-                <tr key={pay.id} className="hover:bg-slate-50/50 transition-colors group">
-                  <td className="px-6 py-5">
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getStatusStyle(pay.status)}`}>
-                      {pay.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-5">
-                    <div>
-                      <p className="font-bold text-slate-900 group-hover:text-primary transition-colors">{pay.tenant}</p>
-                      <p className="text-xs text-slate-400 font-medium">{pay.property}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-5">
-                    <p className="font-bold text-slate-900">
-                      {currency === 'USD' ? `$${pay.amount}` : `SOS ${(pay.amount * 25).toLocaleString()}k`}
-                    </p>
-                  </td>
-                  <td className="px-6 py-5">
-                    <div className="flex items-center gap-2">
-                       <span className="p-1.5 bg-slate-100 rounded-lg text-slate-600">
-                          {getMethodIcon(pay.method)}
-                       </span>
-                       <div>
-                          <p className="text-sm font-bold text-slate-700">{pay.method}</p>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{pay.code || 'NO CODE'}</p>
-                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-5">
-                    <p className="text-sm font-medium text-slate-500">{new Date(pay.date).toLocaleDateString()}</p>
-                  </td>
-                  <td className="px-6 py-5 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                       <button className="p-2 text-primary hover:bg-primary/5 rounded-lg transition-all" title="View Details">
-                          <ArrowUpRight className="w-5 h-5" />
-                       </button>
-                       <button className="p-2 text-slate-400 hover:text-slate-600">
-                          <MoreVertical className="w-5 h-5" />
-                       </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Edit Modal (Simplified) */}
+      {editingPayment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl animate-scale-up">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-slate-900">
+                {language === 'so' ? 'Wax ka beddel Lacag-bixinta' : 'Edit Payment Record'}
+              </h2>
+              <button 
+                onClick={() => setEditingPayment(null)}
+                className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-all"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <form className="space-y-4" onSubmit={(e) => {
+              e.preventDefault();
+              updatePayment(editingPayment);
+              setEditingPayment(null);
+            }}>
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-widest">Amount ($)</label>
+                <input 
+                  type="number" 
+                  value={editingPayment.amount}
+                  onChange={(e) => setEditingPayment({...editingPayment, amount: Number(e.target.value)})}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-primary transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-widest">Payment Method</label>
+                <select 
+                  value={editingPayment.method}
+                  onChange={(e) => setEditingPayment({...editingPayment, method: e.target.value})}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-primary transition-all"
+                >
+                  <option>EVC Plus</option>
+                  <option>e-Dahab</option>
+                  <option>Cash</option>
+                  <option>Bank Transfer</option>
+                </select>
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button 
+                  type="button"
+                  onClick={() => setEditingPayment(null)}
+                  className="flex-1 px-6 py-3 border border-slate-200 font-bold text-slate-600 rounded-2xl hover:bg-slate-50 transition-all"
+                >
+                  {language === 'so' ? 'Ka noqo' : 'Cancel'}
+                </button>
+                <button 
+                  type="submit"
+                  className="flex-1 px-6 py-3 bg-primary text-white font-bold rounded-2xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]"
+                >
+                  {language === 'so' ? 'Keydi' : 'Save Record'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
