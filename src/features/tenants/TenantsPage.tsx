@@ -3,8 +3,6 @@ import {
   Search, 
   Plus, 
   Phone, 
-  MapPin, 
-  Clock, 
   Star,
   Edit,
   Trash2,
