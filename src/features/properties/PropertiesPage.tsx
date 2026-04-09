@@ -8,7 +8,9 @@ import {
   ChevronRight,
   Edit,
   Trash2,
-  RefreshCw
+  RefreshCw,
+  Play,
+  Image as ImageIcon
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -168,7 +170,8 @@ const PropertiesPage = () => {
           {filteredProperties.map((property) => (
             <motion.div variants={itemVariants} key={property.id} className="glass-card group hover:shadow-2xl hover:shadow-primary/5 transition-all overflow-hidden border-slate-100 flex flex-col">
               <div className="aspect-video bg-slate-100 relative overflow-hidden">
-                <div className="absolute top-3 right-3 z-10 flex gap-2">
+                {/* Status & Type Badges */}
+                <div className="absolute top-3 right-3 z-20 flex flex-col gap-2 items-end">
                     <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md shadow-sm border ${
                       property.status === 'occupied' ? 'bg-emerald-500/90 text-white border-emerald-400' :
                       property.status === 'maintenance' ? 'bg-amber-500/90 text-white border-amber-400' :
@@ -176,14 +179,45 @@ const PropertiesPage = () => {
                     }`}>
                       {property.status}
                     </span>
+                    {property.video_url && (
+                      <div className="bg-red-500/90 backdrop-blur-md text-white px-2 py-1 rounded-lg text-[9px] font-bold border border-red-400 flex items-center gap-1">
+                        <Play className="w-2.5 h-2.5 fill-current" />
+                        TOUR
+                      </div>
+                    )}
                 </div>
-                <div className="absolute bottom-3 left-3 z-10">
-                    <span className="bg-white/90 backdrop-blur-md text-slate-900 px-2 py-1 rounded-lg text-xs font-bold border border-white/20">
-                      {property.property_type || property.type}
+
+                {/* Info & Counter Badges */}
+                <div className="absolute bottom-3 left-3 right-3 z-20 flex justify-between items-center">
+                    <span className="bg-white/90 backdrop-blur-md text-slate-900 px-2 py-1 rounded-lg text-[10px] font-bold border border-white/20">
+                      {property.property_type}
                     </span>
+                    {property.images && property.images.length > 0 && (
+                      <div className="bg-slate-900/60 backdrop-blur-sm text-white px-2 py-1 rounded-lg text-[10px] font-bold border border-white/10 flex items-center gap-1">
+                        <ImageIcon className="w-3 h-3" />
+                        {property.images.length}
+                      </div>
+                    )}
                 </div>
-                <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
-                    <Building2 className="w-12 h-12 text-slate-300" />
+
+                {/* Display Image */}
+                <div className="w-full h-full relative group-hover:scale-110 transition-transform duration-700">
+                    {property.images && property.images.length > 0 ? (
+                      <img 
+                        src={property.images[0]} 
+                        alt={property.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-100 flex items-center justify-center">
+                        <Building2 className="w-12 h-12 text-slate-300" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors" />
                 </div>
               </div>
               
@@ -215,7 +249,7 @@ const PropertiesPage = () => {
                 <div className="pt-4 border-t border-slate-50 flex items-center justify-between">
                   <div>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{language === 'so' ? 'Qiimaha Bishii' : 'Monthly Rent'}</p>
-                    <p className="text-xl font-bold text-primary">${property.rent_amount || property.rent}</p>
+                    <p className="text-xl font-bold text-primary">${property.rent_amount}</p>
                   </div>
                   <button className="p-2 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-primary group-hover:text-white transition-all shadow-sm border border-transparent group-hover:border-primary/20">
                     <ChevronRight className="w-5 h-5" />

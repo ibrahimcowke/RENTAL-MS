@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS properties (
     currency TEXT DEFAULT 'USD' CHECK (currency IN ('USD', 'SOS')),
     status TEXT DEFAULT 'available' CHECK (status IN ('available', 'occupied', 'maintenance')),
     images TEXT[] DEFAULT '{}',
+    video_url TEXT,
     description TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -170,11 +171,14 @@ BEGIN
     SELECT id INTO karaan_id FROM districts WHERE name = 'Karaan';
 
     -- 4. Create Properties
-    INSERT INTO properties (name, landlord_id, district_id, address, property_type, rent_amount, currency, status)
+    INSERT INTO properties (name, landlord_id, district_id, address, property_type, rent_amount, currency, status, images, video_url)
     VALUES 
-    ('Hodan Suite A', landlord_id, hodan_id, 'Maka Al Mukarama St', 'Apartment', 450, 'USD', 'occupied'),
-    ('Karaan Heights', landlord_id, karaan_id, 'Lido Beach Ave', 'Apartment', 350, 'USD', 'occupied'),
-    ('Wadajir Commercial', landlord_id, wadajir_id, 'Airport Rd', 'Shop', 1200, 'USD', 'available')
+    ('Hodan Suite A', landlord_id, hodan_id, 'Maka Al Mukarama St', 'Apartment', 450, 'USD', 'occupied', 
+     '{"https://images.unsplash.com/photo-1545324418-f1d3c5b53571?q=80&w=1000", "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1000"}', 
+     'https://www.youtube.com/watch?v=dQw4w9WgXcQ'),
+    ('Karaan Heights', landlord_id, karaan_id, 'Lido Beach Ave', 'Apartment', 350, 'USD', 'occupied', 
+     '{"https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=1000"}', NULL),
+    ('Wadajir Commercial', landlord_id, wadajir_id, 'Airport Rd', 'Shop', 1200, 'USD', 'available', '{}', NULL)
     ON CONFLICT DO NOTHING;
 
     -- Get Property IDs

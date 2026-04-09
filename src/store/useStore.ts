@@ -15,12 +15,13 @@ interface Property {
   district: string;
   district_id?: string;
   address: string;
-  type: string;
-  property_type?: string;
-  rent: number;
-  rent_amount?: number;
-  currency: string;
+  property_type: 'House' | 'Apartment' | 'Room' | 'Shop';
+  rent_amount: number;
+  currency: 'USD' | 'SOS';
   status: 'available' | 'occupied' | 'maintenance';
+  images: string[];
+  video_url?: string;
+  description?: string;
 }
 
 interface Tenant {
@@ -127,7 +128,9 @@ export const useStore = create<AppState>()(
             properties: (props.data || []).map(p => ({
               ...p,
               district: districtMap[p.district_id] || 'Unknown',
-              rent: p.rent_amount || 0
+              rent_amount: p.rent_amount || 0,
+              images: p.images || [],
+              video_url: p.video_url || ''
             })), 
             tenants: tens.data?.map(t => ({ 
               id: t.id, 

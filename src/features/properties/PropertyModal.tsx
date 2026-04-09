@@ -1,4 +1,4 @@
-import { X, Building2, MapPin, DollarSign, Home } from 'lucide-react';
+import { X, Building2, MapPin, DollarSign, Home, Image, Video, Plus, Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
@@ -19,7 +19,10 @@ const PropertyModal = ({ isOpen, onClose, property }: PropertyModalProps) => {
     address: '',
     property_type: 'Apartment',
     rent_amount: 0,
-    status: 'available'
+    status: 'available',
+    images: [] as string[],
+    video_url: '',
+    description: ''
   });
 
   useEffect(() => {
@@ -29,9 +32,12 @@ const PropertyModal = ({ isOpen, onClose, property }: PropertyModalProps) => {
         name: property.name,
         district_id: property.district_id,
         address: property.address,
-        property_type: property.property_type || property.type || 'Apartment',
-        rent_amount: property.rent_amount || property.rent || 0,
-        status: property.status || 'available'
+        property_type: property.property_type || 'Apartment',
+        rent_amount: property.rent_amount || 0,
+        status: property.status || 'available',
+        images: property.images || [],
+        video_url: property.video_url || '',
+        description: property.description || ''
       });
     } else {
       setFormData({
@@ -40,7 +46,10 @@ const PropertyModal = ({ isOpen, onClose, property }: PropertyModalProps) => {
         address: '',
         property_type: 'Apartment',
         rent_amount: 0,
-        status: 'available'
+        status: 'available',
+        images: [],
+        video_url: '',
+        description: ''
       });
     }
   }, [property, isOpen]);
@@ -54,9 +63,9 @@ const PropertyModal = ({ isOpen, onClose, property }: PropertyModalProps) => {
     e.preventDefault();
     try {
       if (property) {
-        await updateProperty({ ...property, ...formData, rent: formData.rent_amount });
+        await updateProperty({ ...property, ...formData });
       } else {
-        await addProperty({ ...formData, rent: formData.rent_amount, currency: 'USD' } as any);
+        await addProperty({ ...formData, currency: 'USD' } as any);
       }
       onClose();
     } catch (error) {
@@ -190,6 +199,78 @@ const PropertyModal = ({ isOpen, onClose, property }: PropertyModalProps) => {
                         {s}
                       </button>
                     ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Media Section */}
+              <div className="md:col-span-2 space-y-4 pt-4 border-t border-slate-100">
+                <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                  <Image className="w-4 h-4 text-primary" />
+                  Multimedia Assets
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Image URLs */}
+                  <div className="space-y-3">
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Property Images (URLs)</label>
+                    {formData.images.map((img, idx) => (
+                      <div key={idx} className="flex gap-2">
+                        <input 
+                          type="text" 
+                          value={img}
+                          onChange={(e) => {
+                            const newImgs = [...formData.images];
+                            newImgs[idx] = e.target.value;
+                            setFormData({...formData, images: newImgs});
+                          }}
+                          className="flex-1 bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs outline-none focus:border-primary transition-all"
+                          placeholder="https://example.com/image.jpg"
+                        />
+                        <button 
+                          type="button"
+                          onClick={() => setFormData({...formData, images: formData.images.filter((_, i) => i !== idx)})}
+                          className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-100 transition-all"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                    <button 
+                      type="button"
+                      onClick={() => setFormData({...formData, images: [...formData.images, '']})}
+                      className="flex items-center gap-2 text-primary font-bold text-xs py-2 px-4 bg-primary/5 rounded-xl hover:bg-primary/10 transition-all border border-dashed border-primary/20"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Another Image URL
+                    </button>
+                  </div>
+
+                  {/* Video URL */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Video Tour URL (YouTube/Vimeo)</label>
+                      <div className="relative">
+                        <Video className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                        <input 
+                          type="text" 
+                          value={formData.video_url}
+                          onChange={(e) => setFormData({...formData, video_url: e.target.value})}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 outline-none focus:border-primary transition-all text-sm font-medium"
+                          placeholder="https://youtube.com/watch?v=..."
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Description (Optional)</label>
+                      <textarea 
+                        value={formData.description}
+                        onChange={(e) => setFormData({...formData, description: e.target.value})}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 outline-none focus:border-primary transition-all text-sm font-medium h-24"
+                        placeholder="Describe modern features, recent renovations..."
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
