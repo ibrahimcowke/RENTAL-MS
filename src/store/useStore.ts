@@ -21,6 +21,9 @@ interface Property {
   status: 'available' | 'occupied' | 'maintenance';
   images: string[];
   video_url?: string;
+  bedrooms: number;
+  bathrooms: number;
+  kitchens: number;
   description?: string;
 }
 
@@ -130,7 +133,10 @@ export const useStore = create<AppState>()(
               district: districtMap[p.district_id] || 'Unknown',
               rent_amount: p.rent_amount || 0,
               images: p.images || [],
-              video_url: p.video_url || ''
+              video_url: p.video_url || '',
+              bedrooms: p.bedrooms || 0,
+              bathrooms: p.bathrooms || 0,
+              kitchens: p.kitchens || 0
             })), 
             tenants: tens.data?.map(t => ({ 
               id: t.id, 

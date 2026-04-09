@@ -1,4 +1,4 @@
-import { X, Building2, MapPin, DollarSign, Home, Image, Video, Plus, Trash2 } from 'lucide-react';
+import { X, Building2, MapPin, DollarSign, Home, Image, Video, Plus, Trash2, Bed, Bath, Utensils } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
@@ -22,6 +22,9 @@ const PropertyModal = ({ isOpen, onClose, property }: PropertyModalProps) => {
     status: 'available',
     images: [] as string[],
     video_url: '',
+    bedrooms: 1,
+    bathrooms: 1,
+    kitchens: 1,
     description: ''
   });
 
@@ -37,6 +40,9 @@ const PropertyModal = ({ isOpen, onClose, property }: PropertyModalProps) => {
         status: property.status || 'available',
         images: property.images || [],
         video_url: property.video_url || '',
+        bedrooms: property.bedrooms || 0,
+        bathrooms: property.bathrooms || 0,
+        kitchens: property.kitchens || 0,
         description: property.description || ''
       });
     } else {
@@ -49,6 +55,9 @@ const PropertyModal = ({ isOpen, onClose, property }: PropertyModalProps) => {
         status: 'available',
         images: [],
         video_url: '',
+        bedrooms: 1,
+        bathrooms: 1,
+        kitchens: 1,
         description: ''
       });
     }
@@ -199,6 +208,55 @@ const PropertyModal = ({ isOpen, onClose, property }: PropertyModalProps) => {
                         {s}
                       </button>
                     ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Specifications Section */}
+              <div className="md:col-span-2 space-y-4 pt-4 border-t border-slate-100">
+                <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                  <Home className="w-4 h-4 text-primary" />
+                  Property Specifications
+                </h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Bedrooms</label>
+                    <div className="relative">
+                      <Bed className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                      <input 
+                        type="number" 
+                        min="0"
+                        value={formData.bedrooms}
+                        onChange={(e) => setFormData({...formData, bedrooms: Number(e.target.value)})}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 outline-none focus:border-primary transition-all text-sm font-medium"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Toilets / Bath</label>
+                    <div className="relative">
+                      <Bath className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                      <input 
+                        type="number" 
+                        min="0"
+                        value={formData.bathrooms}
+                        onChange={(e) => setFormData({...formData, bathrooms: Number(e.target.value)})}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 outline-none focus:border-primary transition-all text-sm font-medium"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Kitchens</label>
+                    <div className="relative">
+                      <Utensils className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                      <input 
+                        type="number" 
+                        min="0"
+                        value={formData.kitchens}
+                        onChange={(e) => setFormData({...formData, kitchens: Number(e.target.value)})}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 outline-none focus:border-primary transition-all text-sm font-medium"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

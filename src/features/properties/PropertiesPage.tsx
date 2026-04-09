@@ -10,7 +10,10 @@ import {
   Trash2,
   RefreshCw,
   Play,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Bed,
+  Bath,
+  Utensils
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -224,10 +227,10 @@ const PropertiesPage = () => {
               <div className="p-5 space-y-4 flex-1">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-bold text-slate-900 group-hover:text-primary transition-colors text-lg">{property.name}</h3>
+                    <h3 className="font-bold text-slate-900 group-hover:text-primary transition-colors text-lg line-clamp-1">{property.name}</h3>
                     <div className="flex items-center gap-1 text-slate-400 mt-1">
                       <MapPin className="w-3 h-3" />
-                      <span className="text-xs font-bold uppercase tracking-wider">{property.district}</span>
+                      <span className="text-xs font-bold uppercase tracking-wider line-clamp-1">{property.district}</span>
                     </div>
                   </div>
                   <div className="flex gap-1">
@@ -239,10 +242,26 @@ const PropertiesPage = () => {
                     </button>
                     <button 
                       onClick={() => handleDelete(property.id)}
-                      className="p-2 hover:bg-red-50 rounded-lg text-slate-400 hover:text-red-600 transition-all"
+                      className="p-2 hover:bg-red-50 rounded-lg text-slate-400 hover:text-red-600 transition-all font-bold"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
+                  </div>
+                </div>
+
+                {/* Specs Row */}
+                <div className="flex items-center gap-4 py-3 border-y border-slate-50">
+                  <div className="flex items-center gap-1.5 text-slate-500">
+                    <Bed className="w-4 h-4 text-slate-300" />
+                    <span className="text-xs font-bold">{property.bedrooms}<span className="text-[10px] ml-0.5 text-slate-400 font-medium">BD</span></span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-500">
+                    <Bath className="w-4 h-4 text-slate-300" />
+                    <span className="text-xs font-bold">{property.bathrooms}<span className="text-[10px] ml-0.5 text-slate-400 font-medium">BT</span></span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-500">
+                    <Utensils className="w-4 h-4 text-slate-300" />
+                    <span className="text-xs font-bold">{property.kitchens}<span className="text-[10px] ml-0.5 text-slate-400 font-medium">KT</span></span>
                   </div>
                 </div>
 
