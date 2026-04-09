@@ -15,7 +15,7 @@ interface Property {
   district: string;
   district_id?: string;
   address: string;
-  property_type: 'House' | 'Apartment' | 'Room' | 'Shop';
+  property_type: 'Complex' | 'Building' | 'House' | 'Apartment' | 'Villa' | 'Room' | 'Shop';
   rent_amount: number;
   currency: 'USD' | 'SOS';
   status: 'available' | 'occupied' | 'maintenance';
@@ -24,6 +24,7 @@ interface Property {
   bedrooms: number;
   bathrooms: number;
   kitchens: number;
+  parent_id?: string;
   description?: string;
 }
 
@@ -136,7 +137,8 @@ export const useStore = create<AppState>()(
               video_url: p.video_url || '',
               bedrooms: p.bedrooms || 0,
               bathrooms: p.bathrooms || 0,
-              kitchens: p.kitchens || 0
+              kitchens: p.kitchens || 0,
+              parent_id: p.parent_id || null
             })), 
             tenants: tens.data?.map(t => ({ 
               id: t.id, 

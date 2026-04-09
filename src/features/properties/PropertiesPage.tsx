@@ -13,7 +13,9 @@ import {
   Image as ImageIcon,
   Bed,
   Bath,
-  Utensils
+  Utensils,
+  FolderTree,
+  ArrowLeft
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -47,15 +49,20 @@ const PropertiesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProperty, setSelectedProperty] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [viewingParentId, setViewingParentId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  const filteredProperties = properties.filter(p => 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.district.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const currentParent = viewingParentId ? properties.find(p => p.id === viewingParentId) : null;
+
+  const filteredProperties = properties.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         p.district.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesParent = viewingParentId ? p.parent_id === viewingParentId : !p.parent_id;
+    return matchesSearch && matchesParent;
+  });
 
   const handleDelete = async (id: string) => {
     if (window.confirm(language === 'so' ? 'Ma hubtaa inaad tirtirto gurigan?' : 'Are you sure you want to delete this property?')) {
@@ -92,6 +99,15 @@ const PropertiesPage = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {viewingParentId && (
+            <button 
+              onClick={() => setViewingParentId(null)}
+              className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-600 hover:text-primary transition-all flex items-center gap-2 font-bold"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              {language === 'so' ? 'Dib u laabo' : 'Back'}
+            </button>
+          )}
           <button 
             onClick={() => fetchData()}
             className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-primary transition-all hover:bg-slate-50"
@@ -105,6 +121,17 @@ const PropertiesPage = () => {
           </button>
         </div>
       </motion.div>
+
+      {/* Breadcrumb / Title for Drill-down */}
+      {viewingParentId && currentParent && (
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-3 bg-primary/5 p-4 rounded-2xl border border-primary/10">
+          <FolderTree className="w-6 h-6 text-primary" />
+          <div>
+            <h2 className="text-lg font-bold text-slate-800">{currentParent.name}</h2>
+            <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">{language === 'so' ? 'Waxaad eegaysaa qaybaha hoos yimaada' : 'Viewing interior units and sections'}</p>
+          </div>
+        </motion.div>
+      )}
 
       {/* Stats Quick View */}
       <motion.div 
@@ -186,6 +213,12 @@ const PropertiesPage = () => {
                       <div className="bg-red-500/90 backdrop-blur-md text-white px-2 py-1 rounded-lg text-[9px] font-bold border border-red-400 flex items-center gap-1">
                         <Play className="w-2.5 h-2.5 fill-current" />
                         TOUR
+                      </div>
+                    )}
+                    {['Complex', 'Building'].includes(property.property_type) && (
+                      <div className="bg-primary/90 backdrop-blur-md text-white px-2 py-1 rounded-lg text-[9px] font-bold border border-primary/40 flex items-center gap-1">
+                        <FolderTree className="w-2.5 h-2.5" />
+                        {properties.filter(p => p.parent_id === property.id).length} UNITS
                       </div>
                     )}
                 </div>
@@ -270,9 +303,19 @@ const PropertiesPage = () => {
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{language === 'so' ? 'Qiimaha Bishii' : 'Monthly Rent'}</p>
                     <p className="text-xl font-bold text-primary">${property.rent_amount}</p>
                   </div>
-                  <button className="p-2 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-primary group-hover:text-white transition-all shadow-sm border border-transparent group-hover:border-primary/20">
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
+                  {['Complex', 'Building', 'Villa'].includes(property.property_type) ? (
+                    <button 
+                      onClick={() => setViewingParentId(property.id)}
+                      className="px-4 py-2 bg-primary text-white rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 flex items-center gap-2"
+                    >
+                      <FolderTree className="w-3 h-3" />
+                      {language === 'so' ? 'EEG QAYBAHA' : 'VIEW UNITS'}
+                    </button>
+                  ) : (
+                    <button className="p-2 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-primary group-hover:text-white transition-all shadow-sm border border-transparent group-hover:border-primary/20">
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  )}
                 </div>
               </div>
             </motion.div>

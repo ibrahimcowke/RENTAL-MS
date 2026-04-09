@@ -25,6 +25,7 @@ const PropertyModal = ({ isOpen, onClose, property }: PropertyModalProps) => {
     bedrooms: 1,
     bathrooms: 1,
     kitchens: 1,
+    parent_id: '',
     description: ''
   });
 
@@ -43,6 +44,7 @@ const PropertyModal = ({ isOpen, onClose, property }: PropertyModalProps) => {
         bedrooms: property.bedrooms || 0,
         bathrooms: property.bathrooms || 0,
         kitchens: property.kitchens || 0,
+        parent_id: property.parent_id || '',
         description: property.description || ''
       });
     } else {
@@ -58,6 +60,7 @@ const PropertyModal = ({ isOpen, onClose, property }: PropertyModalProps) => {
         bedrooms: 1,
         bathrooms: 1,
         kitchens: 1,
+        parent_id: '',
         description: ''
       });
     }
@@ -166,16 +169,50 @@ const PropertyModal = ({ isOpen, onClose, property }: PropertyModalProps) => {
                     <Home className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
                     <select 
                       value={formData.property_type}
-                      onChange={(e) => setFormData({...formData, property_type: e.target.value})}
+                      onChange={(e) => setFormData({...formData, property_type: e.target.value as any})}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all text-sm font-medium appearance-none"
                     >
-                      <option value="Apartment">Apartment</option>
-                      <option value="House">House</option>
-                      <option value="Room">Room</option>
-                      <option value="Shop">Shop</option>
+                      <option value="Complex">Complex / Compound</option>
+                      <option value="Building">Apartment Building</option>
+                      <option value="Villa">Villa</option>
+                      <option value="Apartment">Apartment Unit</option>
+                      <option value="House">Single House</option>
+                      <option value="Room">Single Room</option>
+                      <option value="Shop">Commercial Shop</option>
                     </select>
                   </div>
                 </div>
+
+                {/* Parent Property Selector */}
+                {['Villa', 'Apartment', 'Room', 'Shop'].includes(formData.property_type) && (
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Part of a Complex / Building?</label>
+                    <div className="relative">
+                      <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                      <select 
+                        value={formData.parent_id}
+                        onChange={(e) => {
+                          const parent = useStore.getState().properties.find(p => p.id === e.target.value);
+                          setFormData({
+                            ...formData, 
+                            parent_id: e.target.value,
+                            district_id: parent?.district_id || formData.district_id,
+                            address: parent?.address || formData.address
+                          });
+                        }}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all text-sm font-medium appearance-none"
+                      >
+                        <option value="">Independent (No Parent)</option>
+                        {useStore.getState().properties
+                          .filter(p => ['Complex', 'Building'].includes(p.property_type))
+                          .map(p => (
+                            <option key={p.id} value={p.id}>{p.name} ({p.district})</option>
+                          ))
+                        }
+                      </select>
+                    </div>
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Monthly Rent ($)</label>
