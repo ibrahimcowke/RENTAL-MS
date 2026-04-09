@@ -6,7 +6,6 @@ import {
   MapPin, 
   TrendingUp, 
   ChevronRight,
-  MoreVertical,
   Edit,
   Trash2,
   X

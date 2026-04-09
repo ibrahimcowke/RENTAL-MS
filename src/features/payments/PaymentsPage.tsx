@@ -3,13 +3,11 @@ import {
   Search, 
   Plus, 
   CheckCircle2, 
-  Clock, 
-  AlertCircle,
+  Clock,
   Smartphone,
   Banknote,
   ArrowUpRight,
   Filter,
-  MoreVertical,
   Calendar,
   Trash2,
   Edit,
@@ -19,7 +17,7 @@ import { useState } from 'react';
 import { useStore } from '../../store/useStore';
 
 const PaymentsPage = () => {
-  const { language, currency, payments, deletePayment, updatePayment } = useStore();
+  const { language, payments, deletePayment, updatePayment } = useStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [editingPayment, setEditingPayment] = useState<any>(null);
 
