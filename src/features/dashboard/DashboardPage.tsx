@@ -19,7 +19,30 @@ import {
   XAxis,
   YAxis
 } from 'recharts';
+import { motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.16, 1, 0.3, 1] as any
+    }
+  }
+};
 
 const DashboardPage = () => {
   const { language, currency } = useStore();
@@ -58,7 +81,12 @@ const DashboardPage = () => {
   return (
     <div className="p-4 md:p-8 space-y-8 animate-slide-up pb-24 md:pb-8">
       {/* Welcome Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <motion.div 
+        variants={itemVariants}
+        initial="hidden"
+        animate="visible"
+        className="flex flex-col md:flex-row md:items-center justify-between gap-4"
+      >
         <div>
           <h1 className="text-2xl font-bold text-slate-900">
             {language === 'so' ? 'Maamulka Guryaha Muqdisho' : 'Mogadishu Rental Dashboard'}
@@ -71,12 +99,17 @@ const DashboardPage = () => {
           <Clock className="w-3.5 h-3.5" />
           Last Update: 2 mins ago
         </div>
-      </div>
+      </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
         {stats.map((stat, idx) => (
-          <div key={idx} className="glass-card p-6 h-full flex flex-col justify-between group hover:scale-[1.02] transition-all">
+          <motion.div variants={itemVariants} key={idx} className="glass-card p-6 h-full flex flex-col justify-between group hover:scale-[1.02] transition-all">
             <div className={`w-12 h-12 rounded-2xl ${stat.color} text-white flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform`}>
               <stat.icon className="w-6 h-6" />
             </div>
@@ -84,12 +117,17 @@ const DashboardPage = () => {
               <p className="text-sm font-semibold text-slate-500 mb-1">{stat.title}</p>
               <h3 className="text-3xl font-bold text-slate-900">{stat.value}</h3>
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <motion.div 
+        variants={itemVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+      >
         {/* Income Trend Chart */}
         <div className="lg:col-span-2 glass-card p-6">
           <div className="flex items-center justify-between mb-8">
@@ -160,7 +198,7 @@ const DashboardPage = () => {
             ))}
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* District & Smart Alerts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

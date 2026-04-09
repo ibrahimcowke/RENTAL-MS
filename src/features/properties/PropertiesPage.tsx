@@ -11,7 +11,30 @@ import {
   X
 } from 'lucide-react';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.16, 1, 0.3, 1] as any
+    }
+  }
+};
 
 const PropertiesPage = () => {
   const { language, properties, deleteProperty, updateProperty } = useStore();
@@ -32,7 +55,12 @@ const PropertiesPage = () => {
   return (
     <div className="p-4 md:p-8 space-y-8 animate-slide-up pb-24 md:pb-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <motion.div 
+        variants={itemVariants}
+        initial="hidden"
+        animate="visible"
+        className="flex flex-col md:flex-row md:items-center justify-between gap-4"
+      >
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
             <Building2 className="w-8 h-8 text-primary" />
@@ -46,17 +74,22 @@ const PropertiesPage = () => {
           <Plus className="w-5 h-5" />
           {language === 'so' ? 'Ku dar Guri' : 'Add Property'}
         </button>
-      </div>
+      </motion.div>
 
       {/* Stats Quick View */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+      >
         {[
           { label: language === 'so' ? 'Wadarta Guryaha' : 'Total Units', value: properties.length, icon: Building2, color: 'text-blue-600', bg: 'bg-blue-50' },
           { label: language === 'so' ? 'Deggan' : 'Occupied', value: properties.filter(p => p.status === 'occupied').length, icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
           { label: language === 'so' ? 'Bannaan' : 'Available', value: properties.filter(p => p.status === 'available').length, icon: ChevronRight, color: 'text-amber-600', bg: 'bg-amber-50' },
           { label: language === 'so' ? 'Dayactir' : 'Maintenance', value: properties.filter(p => p.status === 'maintenance').length, icon: MapPin, color: 'text-red-600', bg: 'bg-red-50' },
         ].map((stat, i) => (
-          <div key={i} className="glass-card p-4 flex items-center gap-4 border-slate-100">
+          <motion.div variants={itemVariants} key={i} className="glass-card p-4 flex items-center gap-4 border-slate-100">
             <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center`}>
               <stat.icon className="w-6 h-6" />
             </div>
@@ -64,9 +97,9 @@ const PropertiesPage = () => {
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{stat.label}</p>
               <p className="text-xl font-bold text-slate-900">{stat.value}</p>
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Filters & Search */}
       <div className="flex flex-col md:flex-row gap-4">
@@ -95,9 +128,14 @@ const PropertiesPage = () => {
       </div>
 
       {/* Property Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
         {filteredProperties.map((property) => (
-          <div key={property.id} className="glass-card group hover:shadow-2xl hover:shadow-primary/5 transition-all overflow-hidden border-slate-100 flex flex-col">
+          <motion.div variants={itemVariants} key={property.id} className="glass-card group hover:shadow-2xl hover:shadow-primary/5 transition-all overflow-hidden border-slate-100 flex flex-col">
             <div className="aspect-video bg-slate-100 relative overflow-hidden">
                <div className="absolute top-3 right-3 z-10 flex gap-2">
                   <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md shadow-sm border ${
@@ -148,14 +186,14 @@ const PropertiesPage = () => {
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{language === 'so' ? 'Qiimaha Bishii' : 'Monthly Rent'}</p>
                   <p className="text-xl font-bold text-primary">${property.rent}</p>
                 </div>
-                <button className="p-2 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
+                <button className="p-2 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-primary group-hover:text-white transition-all shadow-sm border border-transparent group-hover:border-primary/20">
                   <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Edit Modal (Simplified) */}
       {editingProperty && (

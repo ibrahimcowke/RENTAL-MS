@@ -12,7 +12,30 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.16, 1, 0.3, 1] as any
+    }
+  }
+};
 
 const TenantsPage = () => {
   const { language, tenants, deleteTenant, updateTenant } = useStore();
@@ -33,7 +56,12 @@ const TenantsPage = () => {
   return (
     <div className="p-4 md:p-8 space-y-8 animate-slide-up pb-24 md:pb-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <motion.div 
+        variants={itemVariants}
+        initial="hidden"
+        animate="visible"
+        className="flex flex-col md:flex-row md:items-center justify-between gap-4"
+      >
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
             <Users className="w-8 h-8 text-primary" />
@@ -47,7 +75,7 @@ const TenantsPage = () => {
           <Plus className="w-5 h-5" />
           {language === 'so' ? 'Kireeye Cusub' : 'Add New Tenant'}
         </button>
-      </div>
+      </motion.div>
 
       {/* Search & Stats */}
       <div className="flex flex-col lg:flex-row gap-6">
@@ -75,9 +103,14 @@ const TenantsPage = () => {
       </div>
 
       {/* Tenants List */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      >
         {filteredTenants.map((tenant) => (
-          <div key={tenant.id} className="glass-card p-6 flex flex-col sm:flex-row gap-6 border-slate-100 hover:border-primary/20 transition-all hover:bg-slate-50/30 group">
+          <motion.div variants={itemVariants} key={tenant.id} className="glass-card p-6 flex flex-col sm:flex-row gap-6 border-slate-100 hover:border-primary/20 transition-all hover:bg-slate-50/30 group">
              <div className="relative shrink-0">
                 <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20">
                    <Users className="w-8 h-8 text-primary" />
@@ -140,9 +173,9 @@ const TenantsPage = () => {
                    </div>
                 </div>
              </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Edit Modal (Simplified) */}
       {editingTenant && (
