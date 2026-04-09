@@ -8,11 +8,12 @@ import {
   ChevronRight,
   Edit,
   Trash2,
-  X
+  RefreshCw
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
+import PropertyModal from './PropertyModal';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -37,19 +38,34 @@ const itemVariants = {
 };
 
 const PropertiesPage = () => {
-  const { language, properties, deleteProperty, updateProperty } = useStore();
+  const { language, properties, deleteProperty, fetchData, isLoading } = useStore();
   const [searchQuery, setSearchQuery] = useState('');
-  const [editingProperty, setEditingProperty] = useState<any>(null);
+  const [selectedProperty, setSelectedProperty] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const filteredProperties = properties.filter(p => 
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.district.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm(language === 'so' ? 'Ma hubtaa inaad tirtirto gurigan?' : 'Are you sure you want to delete this property?')) {
-      deleteProperty(id);
+      await deleteProperty(id);
     }
+  };
+
+  const handleEdit = (property: any) => {
+    setSelectedProperty(property);
+    setIsModalOpen(true);
+  };
+
+  const handleAdd = () => {
+    setSelectedProperty(null);
+    setIsModalOpen(true);
   };
 
   return (
@@ -70,10 +86,19 @@ const PropertiesPage = () => {
             {language === 'so' ? 'Maamul guryahaaga, kireyayaasha, iyo dakhliga ka soo baxa.' : 'Organize and track your units across all districts.'}
           </p>
         </div>
-        <button className="btn-primary">
-          <Plus className="w-5 h-5" />
-          {language === 'so' ? 'Ku dar Guri' : 'Add Property'}
-        </button>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => fetchData()}
+            className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-primary transition-all hover:bg-slate-50"
+            disabled={isLoading}
+          >
+            <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+          </button>
+          <button onClick={handleAdd} className="btn-primary">
+            <Plus className="w-5 h-5" />
+            {language === 'so' ? 'Ku dar Guri' : 'Add Property'}
+          </button>
+        </div>
       </motion.div>
 
       {/* Stats Quick View */}
@@ -128,131 +153,85 @@ const PropertiesPage = () => {
       </div>
 
       {/* Property Grid */}
-      <motion.div 
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-      >
-        {filteredProperties.map((property) => (
-          <motion.div variants={itemVariants} key={property.id} className="glass-card group hover:shadow-2xl hover:shadow-primary/5 transition-all overflow-hidden border-slate-100 flex flex-col">
-            <div className="aspect-video bg-slate-100 relative overflow-hidden">
-               <div className="absolute top-3 right-3 z-10 flex gap-2">
-                  <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md shadow-sm border ${
-                    property.status === 'occupied' ? 'bg-emerald-500/90 text-white border-emerald-400' :
-                    property.status === 'maintenance' ? 'bg-amber-500/90 text-white border-amber-400' :
-                    'bg-blue-500/90 text-white border-blue-400'
-                  }`}>
-                    {property.status}
-                  </span>
-               </div>
-               <div className="absolute bottom-3 left-3 z-10">
-                  <span className="bg-white/90 backdrop-blur-md text-slate-900 px-2 py-1 rounded-lg text-xs font-bold border border-white/20">
-                    {property.type}
-                  </span>
-               </div>
-               <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
-                  <Building2 className="w-12 h-12 text-slate-300" />
-               </div>
-            </div>
-            
-            <div className="p-5 space-y-4 flex-1">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-bold text-slate-900 group-hover:text-primary transition-colors text-lg">{property.name}</h3>
-                  <div className="flex items-center gap-1 text-slate-400 mt-1">
-                    <MapPin className="w-3 h-3" />
-                    <span className="text-xs font-bold uppercase tracking-wider">{property.district}</span>
+      {isLoading ? (
+        <div className="h-64 flex flex-col items-center justify-center gap-4 text-slate-400">
+          <RefreshCw className="w-8 h-8 animate-spin text-primary" />
+          <p className="font-bold animate-pulse">{language === 'so' ? 'Waa la soo raryaa...' : 'Fetching properties...'}</p>
+        </div>
+      ) : (
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          {filteredProperties.map((property) => (
+            <motion.div variants={itemVariants} key={property.id} className="glass-card group hover:shadow-2xl hover:shadow-primary/5 transition-all overflow-hidden border-slate-100 flex flex-col">
+              <div className="aspect-video bg-slate-100 relative overflow-hidden">
+                <div className="absolute top-3 right-3 z-10 flex gap-2">
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md shadow-sm border ${
+                      property.status === 'occupied' ? 'bg-emerald-500/90 text-white border-emerald-400' :
+                      property.status === 'maintenance' ? 'bg-amber-500/90 text-white border-amber-400' :
+                      'bg-blue-500/90 text-white border-blue-400'
+                    }`}>
+                      {property.status}
+                    </span>
+                </div>
+                <div className="absolute bottom-3 left-3 z-10">
+                    <span className="bg-white/90 backdrop-blur-md text-slate-900 px-2 py-1 rounded-lg text-xs font-bold border border-white/20">
+                      {property.property_type || property.type}
+                    </span>
+                </div>
+                <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
+                    <Building2 className="w-12 h-12 text-slate-300" />
+                </div>
+              </div>
+              
+              <div className="p-5 space-y-4 flex-1">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-bold text-slate-900 group-hover:text-primary transition-colors text-lg">{property.name}</h3>
+                    <div className="flex items-center gap-1 text-slate-400 mt-1">
+                      <MapPin className="w-3 h-3" />
+                      <span className="text-xs font-bold uppercase tracking-wider">{property.district}</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    <button 
+                      onClick={() => handleEdit(property)}
+                      className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-primary transition-all"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(property.id)}
+                      className="p-2 hover:bg-red-50 rounded-lg text-slate-400 hover:text-red-600 transition-all"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
-                <div className="flex gap-1">
-                  <button 
-                    onClick={() => setEditingProperty(property)}
-                    className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-primary transition-all"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(property.id)}
-                    className="p-2 hover:bg-red-50 rounded-lg text-slate-400 hover:text-red-600 transition-all"
-                  >
-                    <Trash2 className="w-4 h-4" />
+
+                <div className="pt-4 border-t border-slate-50 flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{language === 'so' ? 'Qiimaha Bishii' : 'Monthly Rent'}</p>
+                    <p className="text-xl font-bold text-primary">${property.rent_amount || property.rent}</p>
+                  </div>
+                  <button className="p-2 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-primary group-hover:text-white transition-all shadow-sm border border-transparent group-hover:border-primary/20">
+                    <ChevronRight className="w-5 h-5" />
                   </button>
                 </div>
               </div>
-
-              <div className="pt-4 border-t border-slate-50 flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{language === 'so' ? 'Qiimaha Bishii' : 'Monthly Rent'}</p>
-                  <p className="text-xl font-bold text-primary">${property.rent}</p>
-                </div>
-                <button className="p-2 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-primary group-hover:text-white transition-all shadow-sm border border-transparent group-hover:border-primary/20">
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
-
-      {/* Edit Modal (Simplified) */}
-      {editingProperty && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl animate-scale-up">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-slate-900">
-                {language === 'so' ? 'Wax ka beddel' : 'Edit Property'}
-              </h2>
-              <button 
-                onClick={() => setEditingProperty(null)}
-                className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-all"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            
-            <form className="space-y-4" onSubmit={(e) => {
-              e.preventDefault();
-              updateProperty(editingProperty);
-              setEditingProperty(null);
-            }}>
-              <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-widest">Property Name</label>
-                <input 
-                  type="text" 
-                  value={editingProperty.name}
-                  onChange={(e) => setEditingProperty({...editingProperty, name: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-primary transition-all"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-widest">Rent Amount ($)</label>
-                <input 
-                  type="number" 
-                  value={editingProperty.rent}
-                  onChange={(e) => setEditingProperty({...editingProperty, rent: Number(e.target.value)})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-primary transition-all"
-                />
-              </div>
-              <div className="flex gap-3 pt-4">
-                <button 
-                  type="button"
-                  onClick={() => setEditingProperty(null)}
-                  className="flex-1 px-6 py-3 border border-slate-200 font-bold text-slate-600 rounded-2xl hover:bg-slate-50 transition-all"
-                >
-                  {language === 'so' ? 'Ka noqo' : 'Cancel'}
-                </button>
-                <button 
-                  type="submit"
-                  className="flex-1 px-6 py-3 bg-primary text-white font-bold rounded-2xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                >
-                  {language === 'so' ? 'Keydi' : 'Save Changes'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+            </motion.div>
+          ))}
+        </motion.div>
       )}
+
+      <PropertyModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        property={selectedProperty} 
+      />
     </div>
   );
 };

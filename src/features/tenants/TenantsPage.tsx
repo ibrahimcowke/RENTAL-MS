@@ -1,19 +1,18 @@
 import { 
   Users, 
   Search, 
-  Plus, 
   Phone, 
-  Star,
+  Star, 
+  UserPlus, 
+  ChevronRight,
   Edit,
   Trash2,
-  X,
-  History,
-  ShieldCheck,
-  AlertTriangle
+  RefreshCw
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useStore } from '../../store/useStore';
+import TenantModal from './TenantModal';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -38,19 +37,34 @@ const itemVariants = {
 };
 
 const TenantsPage = () => {
-  const { language, tenants, deleteTenant, updateTenant } = useStore();
+  const { language, tenants, deleteTenant, fetchData, isLoading } = useStore();
   const [searchQuery, setSearchQuery] = useState('');
-  const [editingTenant, setEditingTenant] = useState<any>(null);
+  const [selectedTenant, setSelectedTenant] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const filteredTenants = tenants.filter(t => 
     t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     t.phone.includes(searchQuery)
   );
 
-  const handleDelete = (id: string) => {
-    if (window.confirm(language === 'so' ? 'Ma hubtaa inaad tirtirto kireyahan?' : 'Are you sure you want to delete this tenant?')) {
-      deleteTenant(id);
+  const handleDelete = async (id: string) => {
+    if (window.confirm(language === 'so' ? 'Ma hubtaa inaad tirtirto kireeyahan?' : 'Are you sure you want to delete this tenant?')) {
+      await deleteTenant(id);
     }
+  };
+
+  const handleEdit = (tenant: any) => {
+    setSelectedTenant(tenant);
+    setIsModalOpen(true);
+  };
+
+  const handleAdd = () => {
+    setSelectedTenant(null);
+    setIsModalOpen(true);
   };
 
   return (
@@ -65,185 +79,143 @@ const TenantsPage = () => {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
             <Users className="w-8 h-8 text-primary" />
-            {language === 'so' ? 'Maamulka Kireyayaasha' : 'Tenant Management'}
+            {language === 'so' ? 'Maamulka Kireystayaasha' : 'Tenant Management'}
           </h1>
           <p className="text-slate-500 font-medium">
-            {language === 'so' ? 'Lasocodka dadka dagan guryahaaga iyo kalsoonidooda.' : 'Track resident history, reliability, and contact info.'}
+            {language === 'so' ? 'La soco kireystayaashaada iyo dakhligooda.' : 'Manage tenant profiles and reliability scores.'}
           </p>
         </div>
-        <button className="btn-primary">
-          <Plus className="w-5 h-5" />
-          {language === 'so' ? 'Kireeye Cusub' : 'Add New Tenant'}
-        </button>
+        <div className="flex gap-3">
+          <button 
+            onClick={() => fetchData()}
+            className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-primary transition-all hover:bg-slate-50"
+            disabled={isLoading}
+          >
+            <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+          </button>
+          <button onClick={handleAdd} className="btn-primary">
+            <UserPlus className="w-5 h-5" />
+            {language === 'so' ? 'Ku dar Kireeye' : 'Add Tenant'}
+          </button>
+        </div>
       </motion.div>
 
-      {/* Search & Stats */}
-      <div className="flex flex-col lg:flex-row gap-6">
-        <div className="relative flex-1 group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-primary transition-colors" />
-          <input 
-            type="text" 
-            placeholder={language === 'so' ? 'Raadi magaca ama taleefanka...' : 'Search by name or phone...'}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-11 pr-4 focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all shadow-sm"
-          />
-        </div>
-        <div className="flex items-center gap-6 px-4 py-2 bg-slate-50 rounded-2xl border border-slate-100 overflow-x-auto whitespace-nowrap">
-           <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">High Trust: {tenants.filter(t => t.reliability > 90).length}</span>
-           </div>
-           <div className="w-px h-4 bg-slate-200" />
-           <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-500" />
-              <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">At Risk: {tenants.filter(t => t.reliability < 80).length}</span>
-           </div>
-        </div>
-      </div>
-
-      {/* Tenants List */}
+      {/* Stats */}
       <motion.div 
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+        className="grid grid-cols-1 sm:grid-cols-3 gap-4"
       >
-        {filteredTenants.map((tenant) => (
-          <motion.div variants={itemVariants} key={tenant.id} className="glass-card p-6 flex flex-col sm:flex-row gap-6 border-slate-100 hover:border-primary/20 transition-all hover:bg-slate-50/30 group">
-             <div className="relative shrink-0">
-                <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20">
-                   <Users className="w-8 h-8 text-primary" />
-                </div>
-                {tenant.reliability > 95 && (
-                  <div className="absolute -top-2 -right-2 bg-amber-400 text-white p-1 rounded-lg shadow-lg border-2 border-white">
-                     <Star className="w-3 h-3 fill-white" />
-                  </div>
-                )}
-             </div>
-
-             <div className="flex-1 space-y-4">
-                <div className="flex justify-between items-start">
-                   <div>
-                      <h3 className="font-bold text-slate-900 text-lg group-hover:text-primary transition-colors">{tenant.name}</h3>
-                      <div className="flex items-center gap-3 mt-1">
-                         <div className="flex items-center gap-1 text-slate-400">
-                            <Phone className="w-3 h-3" />
-                            <span className="text-xs font-bold">{tenant.phone}</span>
-                         </div>
-                         <div className="w-1 h-1 bg-slate-300 rounded-full" />
-                         <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-widest">{tenant.status}</span>
-                      </div>
-                   </div>
-                   <div className="flex gap-1">
-                      <button 
-                         onClick={() => setEditingTenant(tenant)}
-                         className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-primary shadow-sm transition-all"
-                      >
-                         <Edit className="w-4 h-4" />
-                      </button>
-                      <button 
-                         onClick={() => handleDelete(tenant.id)}
-                         className="p-2 hover:bg-red-50 rounded-lg text-slate-400 hover:text-red-500 shadow-sm transition-all"
-                      >
-                         <Trash2 className="w-4 h-4" />
-                      </button>
-                   </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-100">
-                   <div className="text-center sm:text-left">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{language === 'so' ? 'Qoyska' : 'Family Size'}</p>
-                      <p className="text-sm font-bold text-slate-700">{tenant.familySize} {language === 'so' ? 'Qof' : 'People'}</p>
-                   </div>
-                   <div className="text-center sm:text-left">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{language === 'so' ? 'Kalsoonida' : 'Reliability'}</p>
-                      <div className="flex items-center gap-2">
-                         <div className="flex-1 h-1 bg-slate-100 rounded-full max-w-[40px] hidden sm:block">
-                            <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${tenant.reliability}%` }} />
-                         </div>
-                         <p className="text-sm font-bold text-emerald-600">{tenant.reliability}%</p>
-                      </div>
-                   </div>
-                   <div className="text-center sm:text-right">
-                      <button className="text-[10px] font-bold text-primary uppercase tracking-widest hover:underline flex items-center justify-center sm:justify-end gap-1 mx-auto sm:mx-0">
-                         <History className="w-3 h-3" />
-                         {language === 'so' ? 'Taariikh' : 'History'}
-                      </button>
-                   </div>
-                </div>
-             </div>
+        {[
+          { label: language === 'so' ? 'Wadarta Kireystayaasha' : 'Total Tenants', value: tenants.length, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
+          { label: language === 'so' ? 'Reliability Celcelis' : 'Avg. Reliability', value: '98%', icon: Star, color: 'text-amber-600', bg: 'bg-amber-50' },
+          { label: language === 'so' ? 'Bixiyayaal Firfircoon' : 'Active Payers', value: tenants.length, icon: ChevronRight, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+        ].map((stat, i) => (
+          <motion.div variants={itemVariants} key={i} className="glass-card p-4 flex items-center gap-4 border-slate-100">
+            <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center`}>
+              <stat.icon className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{stat.label}</p>
+              <p className="text-xl font-bold text-slate-900">{stat.value}</p>
+            </div>
           </motion.div>
         ))}
       </motion.div>
 
-      {/* Edit Modal (Simplified) */}
-      {editingTenant && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl animate-scale-up">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-slate-900">
-                {language === 'so' ? 'Wax ka beddel Kireeyaha' : 'Edit Tenant Profile'}
-              </h2>
-              <button 
-                onClick={() => setEditingTenant(null)}
-                className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-all"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            
-            <form className="space-y-4" onSubmit={(e) => {
-              e.preventDefault();
-              updateTenant(editingTenant);
-              setEditingTenant(null);
-            }}>
-              <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-widest">Full Name</label>
-                <input 
-                  type="text" 
-                  value={editingTenant.name}
-                  onChange={(e) => setEditingTenant({...editingTenant, name: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-primary transition-all"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-widest">Phone Number</label>
-                <input 
-                  type="text" 
-                  value={editingTenant.phone}
-                  onChange={(e) => setEditingTenant({...editingTenant, phone: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-primary transition-all"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-widest">Reliability Score (%)</label>
-                <input 
-                  type="number" 
-                  value={editingTenant.reliability}
-                  onChange={(e) => setEditingTenant({...editingTenant, reliability: Number(e.target.value)})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-primary transition-all"
-                />
-              </div>
-              <div className="flex gap-3 pt-4">
-                <button 
-                  type="button"
-                  onClick={() => setEditingTenant(null)}
-                  className="flex-1 px-6 py-3 border border-slate-200 font-bold text-slate-600 rounded-2xl hover:bg-slate-50 transition-all"
-                >
-                  {language === 'so' ? 'Ka noqo' : 'Cancel'}
-                </button>
-                <button 
-                  type="submit"
-                  className="flex-1 px-6 py-3 bg-primary text-white font-bold rounded-2xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]"
-                >
-                  {language === 'so' ? 'Keydi' : 'Save Profile'}
-                </button>
-              </div>
-            </form>
-          </div>
+      {/* Search */}
+      <div className="relative group">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-primary transition-colors" />
+        <input 
+          type="text" 
+          placeholder={language === 'so' ? 'Ka raadi magaca ama taleefanka...' : 'Search by name or phone...'}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-11 pr-4 focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all shadow-sm"
+        />
+      </div>
+
+      {/* Tenant List */}
+      {isLoading ? (
+        <div className="h-48 flex flex-col items-center justify-center gap-4 text-slate-400 italic">
+          <RefreshCw className="w-8 h-8 animate-spin text-primary" />
+          <p>{language === 'so' ? 'Soo rarid...' : 'Loading tenants...'}</p>
         </div>
+      ) : (
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="space-y-3"
+        >
+          {filteredTenants.map((tenant) => (
+            <motion.div 
+              variants={itemVariants}
+              key={tenant.id} 
+              className="glass-card p-4 flex items-center justify-between hover:shadow-xl hover:shadow-primary/5 transition-all border-slate-100 group"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center font-bold text-slate-400 text-lg group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                  {tenant.name.charAt(0)}
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-lg">{tenant.name}</h3>
+                  <div className="flex items-center gap-3 text-slate-400 text-sm">
+                    <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {tenant.phone}</span>
+                    <span className="text-slate-200">•</span>
+                    <span>{tenant.familySize} {language === 'so' ? 'Qof' : 'Family Size'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-6">
+                <div className="hidden md:block text-right">
+                  <div className="flex items-center gap-1 justify-end">
+                    <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                    <span className="font-bold text-slate-900">{tenant.reliability}%</span>
+                  </div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{language === 'so' ? 'Reliability' : 'Reliability'}</p>
+                </div>
+                
+                <div className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest ${
+                  tenant.status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-400'
+                }`}>
+                  {tenant.status}
+                </div>
+
+                <div className="flex gap-1">
+                  <button 
+                    onClick={() => handleEdit(tenant)}
+                    className="p-2 hover:bg-slate-100 rounded-lg text-slate-300 hover:text-primary transition-all"
+                  >
+                    <Edit className="w-5 h-5" />
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(tenant.id)}
+                    className="p-2 hover:bg-red-50 rounded-lg text-slate-300 hover:text-red-500 transition-all"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+          
+          {filteredTenants.length === 0 && (
+            <div className="text-center py-12 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+              <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+              <p className="text-slate-500 font-medium">{language === 'so' ? 'Wax kireystayaal ah lama helin.' : 'No tenants found matching your search.'}</p>
+            </div>
+          )}
+        </motion.div>
       )}
+
+      <TenantModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        tenant={selectedTenant} 
+      />
     </div>
   );
 };

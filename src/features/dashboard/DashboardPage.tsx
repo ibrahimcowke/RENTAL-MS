@@ -20,6 +20,7 @@ import {
   YAxis
 } from 'recharts';
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 import { useStore } from '../../store/useStore';
 
 const containerVariants = {
@@ -45,37 +46,50 @@ const itemVariants = {
 };
 
 const DashboardPage = () => {
-  const { language, currency } = useStore();
+  const { language, currency, properties, tenants, payments, fetchData } = useStore();
 
-  // Demo Data (Somalia Context)
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // Calculate Real Stats
+  const totalProperties = properties.length;
+  const activeTenants = tenants.length;
+  const monthlyIncome = payments
+    .filter(p => p.status === 'paid')
+    .reduce((sum, p) => sum + p.amount, 0);
+  const overdueCount = payments.filter(p => p.status === 'overdue').length;
+
   const stats = [
-    { title: language === 'so' ? 'Guryaha Guud' : 'Total Properties', value: '42', icon: Building2, color: 'bg-primary' },
-    { title: language === 'so' ? 'Kiraystayaasha' : 'Active Tenants', value: '38', icon: Users, color: 'bg-blue-600' },
-    { title: language === 'so' ? 'Dakhliga (Bishaan)' : 'Monthly Income', value: currency === 'USD' ? '$12,450' : 'SOS 311M', icon: DollarSign, color: 'bg-teal-600' },
-    { title: language === 'so' ? 'Lacag-dhiman' : 'Overdue Payments', value: '5', icon: AlertCircle, color: 'bg-red-500' },
+    { title: language === 'so' ? 'Guryaha Guud' : 'Total Properties', value: totalProperties.toString(), icon: Building2, color: 'bg-primary' },
+    { title: language === 'so' ? 'Kiraystayaasha' : 'Active Tenants', value: activeTenants.toString(), icon: Users, color: 'bg-blue-600' },
+    { title: language === 'so' ? 'Dakhliga (Guud)' : 'Total Income', value: currency === 'USD' ? `$${monthlyIncome.toLocaleString()}` : `SOS ${(monthlyIncome * 25000).toLocaleString()}`, icon: DollarSign, color: 'bg-teal-600' },
+    { title: language === 'so' ? 'Lacag-dhiman' : 'Overdue Payments', value: overdueCount.toString(), icon: AlertCircle, color: 'bg-red-500' },
   ];
 
-  const districtData = [
-    { name: 'Hodan', total: 4500, occupancy: 95 },
-    { name: 'Wadajir', total: 3200, occupancy: 88 },
-    { name: 'Daynile', total: 2100, occupancy: 72 },
-    { name: 'Karaan', total: 1800, occupancy: 82 },
-    { name: 'Yaqshid', total: 2400, occupancy: 85 },
-  ];
+  // Derive District Performance from real properties
+  const districts = [...new Set(properties.map(p => p.district))];
+  const districtData = districts.map(name => {
+    const propsInDist = properties.filter(p => p.district === name);
+    const occupied = propsInDist.filter(p => p.status === 'occupied').length;
+    return {
+      name,
+      total: propsInDist.length,
+      occupancy: propsInDist.length > 0 ? Math.round((occupied / propsInDist.length) * 100) : 0
+    };
+  }).sort((a, b) => b.total - a.total).slice(0, 5);
 
   const incomeTrend = [
     { month: 'Jan', amount: 10200 },
     { month: 'Feb', amount: 11500 },
     { month: 'Mar', amount: 12450 },
-    { month: 'Apr', amount: 9800 },
-    { month: 'May', amount: 13200 },
-    { month: 'Jun', amount: 14500 },
+    { month: 'Apr', amount: monthlyIncome || 9800 },
   ];
 
   const paymentStatus = [
-    { name: 'Paid', value: 85, color: '#0F766E' },
-    { name: 'Partial', value: 10, color: '#F59E0B' },
-    { name: 'Overdue', value: 5, color: '#EF4444' },
+    { name: 'Paid', value: payments.filter(p => p.status === 'paid').length || 85, color: '#0F766E' },
+    { name: 'Partial', value: payments.filter(p => p.status === 'partial').length || 10, color: '#F59E0B' },
+    { name: 'Overdue', value: payments.filter(p => p.status === 'overdue').length || 5, color: '#EF4444' },
   ];
 
   return (

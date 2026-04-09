@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { supabase } from '../lib/supabase';
+import { toast } from 'react-hot-toast';
 
 interface UserProfile {
   id: string;
@@ -11,9 +13,12 @@ interface Property {
   id: string;
   name: string;
   district: string;
+  district_id?: string;
   address: string;
   type: string;
+  property_type?: string;
   rent: number;
+  rent_amount?: number;
   currency: string;
   status: 'available' | 'occupied' | 'maintenance';
 }
@@ -50,6 +55,7 @@ interface AppState {
   language: 'so' | 'en';
   currency: 'USD' | 'SOS';
   isDarkMode: boolean;
+  isLoading: boolean;
   
   // Data
   properties: Property[];
@@ -62,43 +68,25 @@ interface AppState {
   setLanguage: (lang: 'so' | 'en') => void;
   setCurrency: (cur: 'USD' | 'SOS') => void;
   toggleDarkMode: () => void;
+  fetchData: () => Promise<void>;
 
   // CRUD Actions
-  addProperty: (p: Property) => void;
-  updateProperty: (p: Property) => void;
-  deleteProperty: (id: string) => void;
+  addProperty: (p: Omit<Property, 'id'>) => Promise<void>;
+  updateProperty: (p: Property) => Promise<void>;
+  deleteProperty: (id: string) => Promise<void>;
   
-  addTenant: (t: Tenant) => void;
-  updateTenant: (t: Tenant) => void;
-  deleteTenant: (id: string) => void;
+  addTenant: (t: Omit<Tenant, 'id'>) => Promise<void>;
+  updateTenant: (t: Tenant) => Promise<void>;
+  deleteTenant: (id: string) => Promise<void>;
 
-  addPayment: (p: Payment) => void;
-  updatePayment: (p: Payment) => void;
-  deletePayment: (id: string) => void;
+  addPayment: (p: Omit<Payment, 'id'>) => Promise<void>;
+  updatePayment: (p: Payment) => Promise<void>;
+  deletePayment: (id: string) => Promise<void>;
 
-  addMaintenance: (m: MaintenanceRequest) => void;
-  updateMaintenance: (m: MaintenanceRequest) => void;
-  deleteMaintenance: (id: string) => void;
+  addMaintenance: (m: Omit<MaintenanceRequest, 'id'>) => Promise<void>;
+  updateMaintenance: (m: MaintenanceRequest) => Promise<void>;
+  deleteMaintenance: (id: string) => Promise<void>;
 }
-
-const initialProperties: Property[] = [
-  { id: '1', name: 'Hodan Suite A', district: 'Hodan', address: 'Maka Al Mukarama', type: 'Apartment', rent: 450, currency: 'USD', status: 'occupied' },
-  { id: '2', name: 'Wadajir Commercial', district: 'Wadajir', address: 'Airport Road', type: 'Shop', rent: 1200, currency: 'USD', status: 'available' },
-];
-
-const initialTenants: Tenant[] = [
-  { id: '1', name: 'Mohamed Abdi', phone: '+252 61 555 1122', familySize: 5, reliability: 98, status: 'Active' },
-  { id: '2', name: 'Fadumo Hirsi', phone: '+252 61 444 3344', familySize: 3, reliability: 100, status: 'Active' },
-];
-
-const initialPayments: Payment[] = [
-  { id: '1', tenant: 'Mohamed Abdi', amount: 450, date: '2024-04-05', method: 'EVC Plus', status: 'paid' },
-  { id: '2', tenant: 'Ahmed Duale', amount: 350, date: '2024-03-28', method: 'Cash', status: 'overdue' },
-];
-
-const initialMaintenance: MaintenanceRequest[] = [
-  { id: '1', property: 'Hodan Suite A', title: 'Water Leak in Kitchen', priority: 'urgent', status: 'pending', date: '2024-04-07' },
-];
 
 export const useStore = create<AppState>()(
   persist(
@@ -107,33 +95,139 @@ export const useStore = create<AppState>()(
       language: 'so',
       currency: 'USD',
       isDarkMode: false,
+      isLoading: false,
       
-      properties: initialProperties,
-      tenants: initialTenants,
-      payments: initialPayments,
-      maintenance: initialMaintenance,
+      properties: [],
+      tenants: [],
+      payments: [],
+      maintenance: [],
 
       setUser: (user) => set({ user }),
       setLanguage: (language) => set({ language }),
       setCurrency: (currency) => set({ currency }),
       toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
 
-      // CRUD
-      addProperty: (p) => set((s) => ({ properties: [p, ...s.properties] })),
-      updateProperty: (p) => set((s) => ({ properties: s.properties.map((i) => i.id === p.id ? p : i) })),
-      deleteProperty: (id) => set((s) => ({ properties: s.properties.filter((i) => i.id !== id) })),
+      fetchData: async () => {
+        set({ isLoading: true });
+        try {
+          const [props, dits, tens, pays, mains] = await Promise.all([
+            supabase.from('properties').select('*').order('created_at', { ascending: false }),
+            supabase.from('districts').select('*'),
+            supabase.from('tenants').select('*').order('created_at', { ascending: false }),
+            supabase.from('payments').select('*').order('created_at', { ascending: false }),
+            supabase.from('maintenance_requests').select('*').order('created_at', { ascending: false }),
+          ]);
 
-      addTenant: (t) => set((s) => ({ tenants: [t, ...s.tenants] })),
-      updateTenant: (t) => set((s) => ({ tenants: s.tenants.map((i) => i.id === t.id ? t : i) })),
-      deleteTenant: (id) => set((s) => ({ tenants: s.tenants.filter((i) => i.id !== id) })),
+          const districtMap = (dits.data || []).reduce((acc: any, d: any) => {
+            acc[d.id] = d.name;
+            return acc;
+          }, {});
 
-      addPayment: (p) => set((s) => ({ payments: [p, ...s.payments] })),
-      updatePayment: (p) => set((s) => ({ payments: s.payments.map((i) => i.id === p.id ? p : i) })),
-      deletePayment: (id) => set((s) => ({ payments: s.payments.filter((i) => i.id !== id) })),
+          set({ 
+            properties: (props.data || []).map(p => ({
+              ...p,
+              district: districtMap[p.district_id] || 'Unknown',
+              rent: p.rent_amount || 0
+            })), 
+            tenants: tens.data?.map(t => ({ 
+              id: t.id, 
+              name: t.full_name, 
+              phone: t.phone_number, 
+              familySize: t.family_size, 
+              reliability: t.reliability_score, 
+              status: 'Active' 
+            })) || [],
+            payments: pays.data?.map(p => ({
+              id: p.id,
+              tenant: 'Lease ID: ' + p.lease_id,
+              amount: p.amount_paid,
+              date: p.payment_date,
+              method: p.payment_method,
+              status: p.payment_status
+            })) || [],
+            maintenance: mains.data || [] 
+          });
+        } catch (error) {
+          console.error('Fetch error:', error);
+          toast.error('Failed to load data from server');
+        } finally {
+          set({ isLoading: false });
+        }
+      },
 
-      addMaintenance: (m) => set((s) => ({ maintenance: [m, ...s.maintenance] })),
-      updateMaintenance: (m) => set((s) => ({ maintenance: s.maintenance.map((i) => i.id === m.id ? m : i) })),
-      deleteMaintenance: (id) => set((s) => ({ maintenance: s.maintenance.filter((i) => i.id !== id) })),
+      // CRUD - PROPERTIES
+      addProperty: async (p) => {
+        const { data, error } = await supabase.from('properties').insert([p]).select();
+        if (error) throw error;
+        set((s) => ({ properties: [data[0], ...s.properties] }));
+        toast.success('Property added successfully');
+      },
+      updateProperty: async (p) => {
+        const { error } = await supabase.from('properties').update(p).eq('id', p.id);
+        if (error) throw error;
+        set((s) => ({ properties: s.properties.map((i) => i.id === p.id ? p : i) }));
+        toast.success('Property updated');
+      },
+      deleteProperty: async (id) => {
+        const { error } = await supabase.from('properties').delete().eq('id', id);
+        if (error) throw error;
+        set((s) => ({ properties: s.properties.filter((i) => i.id !== id) }));
+        toast.success('Property deleted');
+      },
+
+      // CRUD - TENANTS (Mapping for simplicity in prototype)
+      addTenant: async (t) => {
+        const payload = { full_name: t.name, phone_number: t.phone, family_size: t.familySize, reliability_score: t.reliability };
+        const { data, error } = await supabase.from('tenants').insert([payload]).select();
+        if (error) throw error;
+        const newT = { id: data[0].id, name: data[0].full_name, phone: data[0].phone_number, familySize: data[0].family_size, reliability: data[0].reliability_score, status: 'Active' };
+        set((s) => ({ tenants: [newT, ...s.tenants] }));
+        toast.success('Tenant added');
+      },
+      updateTenant: async (t) => {
+        const payload = { full_name: t.name, phone_number: t.phone, family_size: t.familySize, reliability_score: t.reliability };
+        const { error } = await supabase.from('tenants').update(payload).eq('id', t.id);
+        if (error) throw error;
+        set((s) => ({ tenants: s.tenants.map((i) => i.id === t.id ? t : i) }));
+        toast.success('Tenant profile updated');
+      },
+      deleteTenant: async (id) => {
+        const { error } = await supabase.from('tenants').delete().eq('id', id);
+        if (error) throw error;
+        set((s) => ({ tenants: s.tenants.filter((i) => i.id !== id) }));
+        toast.success('Tenant removed');
+      },
+
+      // CRUD - PAYMENTS
+      addPayment: async (p) => {
+        // Simplified: missing lease mapping but demonstrating the pattern
+        set((s) => ({ payments: [{...p, id: Math.random().toString()}, ...s.payments] }));
+        toast.success('Payment recorded locally');
+      },
+      updatePayment: async (p) => {
+        set((s) => ({ payments: s.payments.map((i) => i.id === p.id ? p : i) }));
+      },
+      deletePayment: async (id) => {
+        set((s) => ({ payments: s.payments.filter((i) => i.id !== id) }));
+      },
+
+      // CRUD - MAINTENANCE
+      addMaintenance: async (m) => {
+        const { data, error } = await supabase.from('maintenance_requests').insert([m]).select();
+        if (error) throw error;
+        set((s) => ({ maintenance: [data[0], ...s.maintenance] }));
+        toast.success('Request sent');
+      },
+      updateMaintenance: async (m) => {
+        const { error } = await supabase.from('maintenance_requests').update(m).eq('id', m.id);
+        if (error) throw error;
+        set((s) => ({ maintenance: s.maintenance.map((i) => i.id === m.id ? m : i) }));
+      },
+      deleteMaintenance: async (id) => {
+        const { error } = await supabase.from('maintenance_requests').delete().eq('id', id);
+        if (error) throw error;
+        set((s) => ({ maintenance: s.maintenance.filter((i) => i.id !== id) }));
+      },
     }),
     {
       name: 'mogadishu-rental-storage',
