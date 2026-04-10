@@ -132,7 +132,7 @@ const TenantsPage = () => {
               icon: Users, 
               color: 'bg-slate-900',
               trend: 5,
-              chartData: Array.from({ length: 15 }, (_, i) => ({ value: 10 + Math.random() * 20 }))
+              chartData: Array.from({ length: 15 }, () => ({ value: 10 + Math.random() * 20 }))
             },
             { 
               title: language === 'so' ? 'Reliability Celcelis' : 'Mean Reliability', 
@@ -140,7 +140,7 @@ const TenantsPage = () => {
               icon: Star, 
               color: 'bg-primary',
               trend: 2,
-              chartData: Array.from({ length: 15 }, (_, i) => ({ value: 90 + Math.random() * 10 }))
+              chartData: Array.from({ length: 15 }, () => ({ value: 90 + Math.random() * 10 }))
             },
             { 
               title: language === 'so' ? 'Lease Health' : 'Lease Velocity', 
@@ -148,7 +148,7 @@ const TenantsPage = () => {
               icon: ChevronRight, 
               color: 'bg-emerald-600',
               trend: 12,
-              chartData: Array.from({ length: 15 }, (_, i) => ({ value: 50 + Math.random() * 50 }))
+              chartData: Array.from({ length: 15 }, () => ({ value: 50 + Math.random() * 50 }))
             },
           ].map((stat, i) => (
              <DashboardStatCard key={i} {...stat} />
