@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { AreaChart, Area, ResponsiveContainer, YAxis } from 'recharts';
 import { Activity, Zap, ArrowUpRight } from 'lucide-react';
-import { cn } from '../../utils/cn';
 
 const mockActivityData = [
   { time: '00:00', value: 45 },

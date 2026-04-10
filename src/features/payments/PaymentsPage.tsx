@@ -2,7 +2,6 @@ import {
   DollarSign, 
   Plus, 
   Search, 
-  Filter, 
   ArrowUpRight, 
   Wallet,
   CheckCircle2,
@@ -12,7 +11,6 @@ import {
   Trash2,
   RefreshCw,
   Download,
-  Zap,
   Calendar
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -23,16 +21,6 @@ import { useStore } from '../../store/useStore';
 import { generateReceiptPDF } from '../../lib/ReceiptService';
 import DashboardStatCard from '../dashboard/DashboardStatCard';
 import PaymentModal from './PaymentModal';
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-};
 
 const itemVariants = {
   hidden: { opacity: 0, scale: 0.95 },
@@ -167,7 +155,7 @@ const PaymentsPage = () => {
             icon={ArrowUpRight}
             color="bg-emerald-600"
             trend={15.2}
-            chartData={Array.from({ length: 15 }, (_, i) => ({ value: 10 + Math.random() * 80 }))}
+            chartData={Array.from({ length: 15 }, () => ({ value: 10 + Math.random() * 80 }))}
           />
           <DashboardStatCard 
             title={language === 'so' ? 'Lacagaha Maqan' : 'Portfolio Receivables'}
@@ -175,7 +163,7 @@ const PaymentsPage = () => {
             icon={Clock}
             color="bg-amber-500"
             trend={-8.4}
-            chartData={Array.from({ length: 15 }, (_, i) => ({ value: 50 - Math.random() * 30 }))}
+            chartData={Array.from({ length: 15 }, () => ({ value: 50 - Math.random() * 30 }))}
           />
           <DashboardStatCard 
             title={language === 'so' ? 'Heerka Bixinta' : 'Collection Velocity'}
@@ -183,7 +171,7 @@ const PaymentsPage = () => {
             icon={CheckCircle2}
             color="bg-primary"
             trend={2.1}
-            chartData={Array.from({ length: 15 }, (_, i) => ({ value: 90 + Math.random() * 5 }))}
+            chartData={Array.from({ length: 15 }, () => ({ value: 90 + Math.random() * 5 }))}
           />
         </div>
 

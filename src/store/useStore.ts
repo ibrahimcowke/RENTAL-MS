@@ -60,6 +60,7 @@ interface MaintenanceRequest {
   priority: 'low' | 'normal' | 'urgent' | 'emergency';
   status: 'pending' | 'in_progress' | 'resolved';
   date: string;
+  description?: string;
 }
 
 export interface AppNotification {

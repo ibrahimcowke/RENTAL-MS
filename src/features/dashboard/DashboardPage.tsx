@@ -3,15 +3,10 @@ import {
   Users, 
   DollarSign, 
   AlertCircle,
-  TrendingUp,
-  MapPin,
   Plus,
   RefreshCw,
   Zap,
-  ChevronRight,
-  LayoutGrid,
-  Activity,
-  ArrowRight
+  Activity
 } from 'lucide-react';
 import { 
   CartesianGrid, 
@@ -30,7 +25,6 @@ import RecentActivity from './RecentActivity';
 import DashboardStatCard from './DashboardStatCard';
 import PortfolioPulse from './PortfolioPulse';
 import PropertyModal from '../properties/PropertyModal';
-import TenantModal from '../tenants/TenantModal';
 import PaymentModal from '../payments/PaymentModal';
 import { cn } from '../../utils/cn';
 
@@ -47,7 +41,7 @@ const itemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
+    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as any }
   }
 };
 
@@ -73,7 +67,7 @@ const DashboardPage = () => {
       icon: Building2, 
       color: 'bg-indigo-600',
       trend: 12,
-      chartData: Array.from({ length: 15 }, (_, i) => ({ value: 20 + Math.random() * 40 }))
+      chartData: Array.from({ length: 15 }, () => ({ value: 20 + Math.random() * 40 }))
     },
     { 
       title: language === 'so' ? 'Kiraystayaasha' : 'Occupancy Velocity', 
@@ -81,7 +75,7 @@ const DashboardPage = () => {
       icon: Users, 
       color: 'bg-blue-600',
       trend: 8,
-      chartData: Array.from({ length: 15 }, (_, i) => ({ value: 30 + Math.random() * 20 }))
+      chartData: Array.from({ length: 15 }, () => ({ value: 30 + Math.random() * 20 }))
     },
     { 
       title: language === 'so' ? 'Dakhliga (Guud)' : 'Aggregate Revenue', 
@@ -89,7 +83,7 @@ const DashboardPage = () => {
       icon: DollarSign, 
       color: 'bg-emerald-600',
       trend: 15,
-      chartData: Array.from({ length: 15 }, (_, i) => ({ value: 10 + Math.random() * 80 }))
+      chartData: Array.from({ length: 15 }, () => ({ value: 10 + Math.random() * 80 }))
     },
     { 
       title: language === 'so' ? 'Lacag-dhiman' : 'Delinquency Rate', 
@@ -97,7 +91,7 @@ const DashboardPage = () => {
       icon: AlertCircle, 
       color: 'bg-rose-600',
       trend: -5,
-      chartData: Array.from({ length: 15 }, (_, i) => ({ value: 50 - Math.random() * 30 }))
+      chartData: Array.from({ length: 15 }, () => ({ value: 50 - Math.random() * 30 }))
     },
   ];
 

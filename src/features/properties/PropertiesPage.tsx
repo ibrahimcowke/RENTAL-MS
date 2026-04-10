@@ -25,7 +25,8 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
 import PropertyModal from './PropertyModal';
-import { DashboardStatCard } from '../dashboard/DashboardStatCard';
+import DashboardStatCard from '../dashboard/DashboardStatCard';
+import { cn } from '../../utils/cn';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -196,36 +197,36 @@ const PropertiesPage = () => {
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
       >
         <DashboardStatCard
-          label={language === 'so' ? 'Dhammaan Guryaha' : 'Total Managed Units'}
+          title={language === 'so' ? 'Dhammaan Guryaha' : 'Total Managed Units'}
           value={properties.filter(p => !p.parent_id).length.toString()}
-          trend="+12%"
-          trendType="up"
+          trend={12}
           icon={Building2}
-          color="blue"
+          color="bg-blue-600"
+          chartData={Array.from({ length: 15 }, () => ({ value: 5 + Math.random() * 20 }))}
         />
         <DashboardStatCard
-          label="Luxury Villas"
+          title="Luxury Villas"
           value={properties.filter(p => p.property_type === 'Villa').length.toString()}
-          trend="+5%"
-          trendType="up"
+          trend={5}
           icon={Home}
-          color="emerald"
+          color="bg-emerald-600"
+          chartData={Array.from({ length: 15 }, () => ({ value: 10 + Math.random() * 15 }))}
         />
         <DashboardStatCard
-          label="Multi-Unit Apartments"
+          title="Multi-Unit Apartments"
           value={properties.filter(p => p.property_type === 'Apartment' && !p.parent_id).length.toString()}
-          trend="+8%"
-          trendType="up"
+          trend={8}
           icon={Layers}
-          color="indigo"
+          color="bg-indigo-600"
+          chartData={Array.from({ length: 15 }, () => ({ value: 20 + Math.random() * 50 }))}
         />
         <DashboardStatCard
-          label="Operational Revenue"
+          title="Operational Revenue"
           value={`$${properties.reduce((sum, p) => sum + (p.rent_amount || 0), 0).toLocaleString()}`}
-          trend="+15%"
-          trendType="up"
+          trend={15}
           icon={TrendingUp}
-          color="amber"
+          color="bg-amber-500"
+          chartData={Array.from({ length: 15 }, () => ({ value: 30 + Math.random() * 40 }))}
         />
       </motion.div>
 
@@ -310,7 +311,6 @@ const PropertiesPage = () => {
           {filteredProperties.map((property) => {
             const typeMeta = TYPE_META[property.property_type] || TYPE_META['Normal House'];
             const TypeIcon = typeMeta.icon;
-            const sectionCount = properties.filter(p => p.parent_id === property.id).length;
 
             return (
               <motion.div

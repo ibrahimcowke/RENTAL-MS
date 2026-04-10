@@ -8,15 +8,14 @@ import {
   Trash2, 
   Edit, 
   RefreshCw, 
-  Zap, 
-  Building2, 
-  Filter 
+  Building2
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
 import DashboardStatCard from '../dashboard/DashboardStatCard';
 import MaintenanceModal from './MaintenanceModal';
+import { cn } from '../../utils/cn';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -134,7 +133,7 @@ const MaintenancePage = () => {
             icon={Clock}
             color="bg-amber-500"
             trend={12}
-            chartData={Array.from({ length: 15 }, (_, i) => ({ value: 5 + Math.random() * 20 }))}
+            chartData={Array.from({ length: 15 }, () => ({ value: 5 + Math.random() * 20 }))}
           />
           <DashboardStatCard 
             title={language === 'so' ? 'Socda' : 'Active Restoration'}
@@ -142,7 +141,7 @@ const MaintenancePage = () => {
             icon={Wrench}
             color="bg-blue-600"
             trend={-5}
-            chartData={Array.from({ length: 15 }, (_, i) => ({ value: 10 + Math.random() * 15 }))}
+            chartData={Array.from({ length: 15 }, () => ({ value: 10 + Math.random() * 15 }))}
           />
           <DashboardStatCard 
             title={language === 'so' ? 'La Xalliyay' : 'Deployment Resolved'}
@@ -150,7 +149,7 @@ const MaintenancePage = () => {
             icon={CheckCircle2}
             color="bg-emerald-600"
             trend={8}
-            chartData={Array.from({ length: 15 }, (_, i) => ({ value: 20 + Math.random() * 50 }))}
+            chartData={Array.from({ length: 15 }, () => ({ value: 20 + Math.random() * 50 }))}
           />
         </div>
 

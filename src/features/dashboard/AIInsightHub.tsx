@@ -4,10 +4,10 @@ import {
   TrendingUp, 
   AlertCircle, 
   Target,
-  Zap,
   ArrowRight
 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
+import { cn } from '../../utils/cn';
 
 const AIInsightHub = () => {
   const { properties, payments, language } = useStore();

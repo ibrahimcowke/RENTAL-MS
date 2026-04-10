@@ -1,7 +1,5 @@
-import { motion } from 'framer-motion';
 import { 
   User, 
-  Mail, 
   Phone, 
   Shield, 
   Camera, 
@@ -19,7 +17,7 @@ import { useState } from 'react';
 import { cn } from '../../utils/cn';
 
 const ProfilePage = () => {
-  const { user, language, theme, updateProfile } = useStore();
+  const { user, updateProfile } = useStore();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     full_name: user?.full_name || 'Ali Ahmed',

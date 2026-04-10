@@ -20,7 +20,7 @@ import { useEffect, useState } from 'react';
 import { cn } from '../../utils/cn';
 
 const AdminPage = () => {
-  const { allProfiles, fetchProfiles, language, isLoading } = useStore();
+  const { allProfiles, fetchProfiles } = useStore();
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
