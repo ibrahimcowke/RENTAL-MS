@@ -8,9 +8,10 @@ import {
 import { useStore } from '../../store/useStore';
 import NotificationCenter from './NotificationCenter';
 import ThemeSelector from './ThemeSelector';
+import { Link } from 'react-router-dom';
 
 const TopBar = () => {
-  const { language, setLanguage, currency, setCurrency } = useStore();
+  const { language, setLanguage, currency, setCurrency, user } = useStore();
 
   return (
     <header className="h-16 bg-white/70 backdrop-blur-md sticky top-0 z-40 border-b border-slate-100 px-4 md:px-8 flex items-center justify-between">
@@ -49,15 +50,22 @@ const TopBar = () => {
         <ThemeSelector />
         <NotificationCenter />
 
-        <button className="flex items-center gap-2 p-1 pl-1 md:pl-3 hover:bg-slate-100 rounded-xl transition-colors border border-transparent hover:border-slate-100">
+        <Link 
+          to="/profile"
+          className="flex items-center gap-2 p-1 pl-1 md:pl-3 hover:bg-slate-100 rounded-xl transition-colors border border-transparent hover:border-slate-100"
+        >
           <div className="hidden md:block text-right mr-1">
-            <p className="text-xs font-bold text-slate-900 leading-none">Ali Ahmed</p>
-            <p className="text-[10px] text-slate-500 font-medium">Landlord</p>
+            <p className="text-xs font-bold text-slate-900 leading-none">{user?.full_name || 'Ali Ahmed'}</p>
+            <p className="text-[10px] text-slate-500 font-medium capitalize">{user?.role || 'Landlord'}</p>
           </div>
-          <div className="w-8 h-8 md:w-9 md:h-9 bg-primary/10 rounded-lg flex items-center justify-center border border-primary/20">
-            <UserIcon className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+          <div className="w-8 h-8 md:w-9 md:h-9 bg-primary/10 rounded-lg flex items-center justify-center border border-primary/20 overflow-hidden">
+            {user?.avatar_url ? (
+              <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <UserIcon className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+            )}
           </div>
-        </button>
+        </Link>
       </div>
     </header>
   );

@@ -12,6 +12,8 @@ import TenantsPage from './features/tenants/TenantsPage';
 import PaymentsPage from './features/payments/PaymentsPage';
 import MaintenancePage from './features/maintenance/MaintenancePage';
 import ReportsPage from './features/reports/ReportsPage';
+import AdminPage from './features/admin/AdminPage';
+import ProfilePage from './features/profile/ProfilePage';
 import { useStore } from './store/useStore';
 
 const PageWrapper = ({ children }: { children: React.ReactNode }) => (
@@ -27,13 +29,27 @@ const PageWrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 function AppContent() {
-  const { user, theme } = useStore();
+  const { user, theme, setUser, fetchData } = useStore();
   const location = useLocation();
 
   // Apply persisted theme on boot
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme || 'ocean');
-  }, [theme]);
+    fetchData(); // Ensure data is loaded
+  }, [theme, fetchData]);
+
+  // Set default user for demo if none exists
+  useEffect(() => {
+    if (!user) {
+      setUser({
+        id: '00000000-0000-0000-0000-000000000000',
+        full_name: 'Ali Ahmed',
+        role: 'admin',
+        phone_number: '+252 61 777 0000',
+        bio: 'Chief Executive Administrator at Mogadishu Rental Systems.'
+      });
+    }
+  }, [user, setUser]);
 
   // Simple Mock Auth Wrapper
   if (!user && false) { // Set to true to force login
@@ -56,6 +72,8 @@ function AppContent() {
               <Route path="/payments" element={<PageWrapper><PaymentsPage /></PageWrapper>} />
               <Route path="/maintenance" element={<PageWrapper><MaintenancePage /></PageWrapper>} />
               <Route path="/reports" element={<PageWrapper><ReportsPage /></PageWrapper>} />
+              <Route path="/admin" element={<PageWrapper><AdminPage /></PageWrapper>} />
+              <Route path="/profile" element={<PageWrapper><ProfilePage /></PageWrapper>} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </AnimatePresence>

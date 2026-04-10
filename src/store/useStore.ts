@@ -3,10 +3,13 @@ import { persist } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
 import { toast } from 'react-hot-toast';
 
-interface UserProfile {
+export interface UserProfile {
   id: string;
   full_name: string;
+  phone_number?: string;
   role: 'admin' | 'landlord' | 'manager';
+  avatar_url?: string;
+  bio?: string;
 }
 
 export type AppTheme = 'ocean' | 'midnight' | 'rose' | 'desert' | 'arctic' | 'forest' | 'slate';
@@ -82,6 +85,7 @@ interface AppState {
   payments: Payment[];
   maintenance: MaintenanceRequest[];
   notifications: AppNotification[];
+  allProfiles: UserProfile[];
 
   // Actions
   setUser: (user: UserProfile | null) => void;
@@ -90,6 +94,8 @@ interface AppState {
   setTheme: (theme: AppTheme) => void;
   toggleDarkMode: () => void;
   fetchData: () => Promise<void>;
+  fetchProfiles: () => Promise<void>;
+  updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
   
   // Notification Actions
   addNotification: (n: Omit<AppNotification, 'id' | 'date' | 'read'>) => void;
@@ -129,6 +135,7 @@ export const useStore = create<AppState>()(
       payments: [],
       maintenance: [],
       notifications: [],
+      allProfiles: [],
 
       setUser: (user) => set({ user }),
       setLanguage: (language) => set({ language }),
@@ -140,6 +147,24 @@ export const useStore = create<AppState>()(
         setTimeout(() => document.documentElement.classList.remove('theme-transition'), 400);
       },
       toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
+
+      fetchProfiles: async () => {
+        const { data, error } = await supabase.from('profiles').select('*');
+        if (error) throw error;
+        set({ allProfiles: data || [] });
+      },
+
+      updateProfile: async (updates) => {
+        const { user } = useStore.getState();
+        if (!user) return;
+        const { error } = await supabase.from('profiles').update(updates).eq('id', user.id);
+        if (error) throw error;
+        set((state) => ({ 
+          user: state.user ? { ...state.user, ...updates } : null,
+          allProfiles: state.allProfiles.map(p => p.id === user.id ? { ...p, ...updates } : p)
+        }));
+        toast.success('Profile updated');
+      },
 
       addNotification: (n) => set((state) => ({
         notifications: [

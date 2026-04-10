@@ -7,12 +7,14 @@ import {
   Wrench, 
   FileText, 
   LogOut,
-  Building2
+  Building2,
+  ShieldCheck,
+  User
 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 
 const Sidebar = () => {
-  const { language } = useStore();
+  const { language, user } = useStore();
 
   const menuItems = [
     { name: language === 'so' ? 'Dashboard' : 'Dashboard', icon: BarChart3, path: '/' },
@@ -21,6 +23,8 @@ const Sidebar = () => {
     { name: language === 'so' ? 'Lacag-bixinta' : 'Payments', icon: CreditCard, path: '/payments' },
     { name: language === 'so' ? 'Dayactirka' : 'Maintenance', icon: Wrench, path: '/maintenance' },
     { name: language === 'so' ? 'Warbixinada' : 'Reports', icon: FileText, path: '/reports' },
+    { name: language === 'so' ? 'Maamulka' : 'Admin Panel', icon: ShieldCheck, path: '/admin', adminOnly: true },
+    { name: language === 'so' ? 'Profile-ka' : 'My Profile', icon: User, path: '/profile' },
   ];
 
   return (
@@ -41,11 +45,12 @@ const Sidebar = () => {
             key={item.path}
             to={item.path}
             className={({ isActive }) => `
-              flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group
-              ${isActive 
-                ? 'bg-primary text-white shadow-xl shadow-primary/30 scale-[1.05]' 
-                : 'text-white/60 hover:bg-white/5 hover:text-white'}
-            `}
+            flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group
+            ${item.adminOnly && user?.role !== 'admin' ? 'hidden' : ''}
+            ${isActive 
+              ? 'bg-primary text-white shadow-xl shadow-primary/30 scale-[1.05]' 
+              : 'text-white/60 hover:bg-white/5 hover:text-white'}
+          `}
           >
             <item.icon className={`w-5 h-5 transition-transform duration-200 group-hover:scale-110`} />
             <span className="font-medium">{item.name}</span>
