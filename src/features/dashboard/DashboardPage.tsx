@@ -22,6 +22,7 @@ import {
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
 import { useStore } from '../../store/useStore';
+import AIInsightHub from './AIInsightHub';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -135,6 +136,11 @@ const DashboardPage = () => {
         ))}
       </motion.div>
 
+      {/* AI Intelligence Hub */}
+      <motion.div variants={itemVariants} initial="hidden" animate="visible">
+        <AIInsightHub />
+      </motion.div>
+
       {/* Charts Section */}
       <motion.div 
         variants={itemVariants}
@@ -175,56 +181,66 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Payment Status Pie */}
-        <div className="glass-card p-6">
-          <h3 className="text-lg font-bold mb-8">
-            {language === 'so' ? 'Xaaladda Lacagaha' : 'Payment Status'}
+        {/* Portfolio Health Score */}
+        <div className="glass-card p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
+          <h3 className="text-lg font-bold mb-8 w-full text-left">
+            {language === 'so' ? 'Nafaqada Portfolio' : 'Portfolio Health'}
           </h3>
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={paymentStatus}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {paymentStatus.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+          
+          <div className="relative w-48 h-48 flex items-center justify-center">
+            {/* SVG Gauge */}
+            <svg className="w-full h-full transform -rotate-90">
+              <circle
+                cx="96"
+                cy="96"
+                r="80"
+                stroke="currentColor"
+                strokeWidth="12"
+                fill="transparent"
+                className="text-slate-100"
+              />
+              <circle
+                cx="96"
+                cy="96"
+                r="80"
+                stroke="currentColor"
+                strokeWidth="12"
+                fill="transparent"
+                strokeDasharray={502.6}
+                strokeDashoffset={502.6 * (1 - 0.84)}
+                className="text-primary transition-all duration-1000 ease-out"
+                strokeLinecap="round"
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-4xl font-black text-slate-900">84%</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Excellent</span>
+            </div>
           </div>
-          <div className="space-y-3 mt-4">
-            {paymentStatus.map((status, idx) => (
-              <div key={idx} className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: status.color }} />
-                  <span className="font-medium text-slate-600">{status.name}</span>
-                </div>
-                <span className="font-bold">{status.value}%</span>
-              </div>
-            ))}
+
+          <div className="mt-8 space-y-2 w-full">
+            <div className="flex justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <span>Risk Level</span>
+              <span className="text-emerald-500">Low</span>
+            </div>
+            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-full bg-emerald-500 w-[15%] rounded-full" />
+            </div>
           </div>
         </div>
       </motion.div>
 
-      {/* District & Smart Alerts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* District & Performance */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* District Performance */}
-        <div className="glass-card shadow-none border-slate-100 bg-white/50 backdrop-blur-none p-6">
+        <div className="lg:col-span-2 glass-card p-6">
           <div className="flex items-center gap-2 mb-6">
             <MapPin className="w-5 h-5 text-secondary" />
             <h3 className="text-lg font-bold">
               {language === 'so' ? 'Degmooyinka & Qabsashada' : 'District Performance'}
             </h3>
           </div>
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
             {districtData.map((d, i) => (
               <div key={i} className="space-y-2">
                 <div className="flex justify-between items-end">
@@ -242,37 +258,26 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Smart Insights (Somali Context) */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-bold px-2">
-            {language === 'so' ? 'Fariimaha Muhiimka ah' : 'Smart Insights'}
-          </h3>
-          <div className="bg-teal-50 border-l-4 border-teal-600 p-4 rounded-r-xl">
-            <div className="flex gap-3">
-              <TrendingUp className="w-5 h-5 text-teal-600 mt-1" />
-              <div>
-                <p className="text-sm font-bold text-teal-900">Highest Growth Area</p>
-                <p className="text-sm text-teal-700">Hodan District is showing 15% more demand this month for Shop spacing.</p>
-              </div>
+        {/* Legend / Info */}
+        <div className="glass-card p-6 bg-slate-900 text-white border-none">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-white/10 rounded-lg">
+              <TrendingUp className="w-5 h-5" />
             </div>
+            <h4 className="font-bold underline decoration-primary decoration-2 underline-offset-4">Portfolio Alpha</h4>
           </div>
-          <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl">
-            <div className="flex gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-500 mt-1" />
-              <div>
-                <p className="text-sm font-bold text-amber-900">Payment Risk Detected</p>
-                <p className="text-sm text-amber-700">Wadajir District has 3 late payments. EVC Plus reminders recommended.</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-xl">
-            <div className="flex gap-3">
-              <Building2 className="w-5 h-5 text-blue-600 mt-1" />
-              <div>
-                <p className="text-sm font-bold text-blue-900">Maintenance Needed</p>
-                <p className="text-sm text-blue-700">Daynile District property "Daynile Heights" has 2 urgent water issues.</p>
-              </div>
-            </div>
+          <p className="text-sm text-slate-400 font-medium leading-relaxed mb-6">
+            Your portfolio is performing in the top 5% of Mogadishu rental markets for Q1 2024. Keep up the high reliability scores.
+          </p>
+          <div className="space-y-4">
+             <div className="flex items-center justify-between p-3 bg-white/5 rounded-2xl border border-white/10">
+                <span className="text-xs font-medium opacity-60">Yearly Yield</span>
+                <span className="font-bold text-primary">14.2%</span>
+             </div>
+             <div className="flex items-center justify-between p-3 bg-white/5 rounded-2xl border border-white/10">
+                <span className="text-xs font-medium opacity-60">Market Share</span>
+                <span className="font-bold text-secondary">2.8%</span>
+             </div>
           </div>
         </div>
       </div>

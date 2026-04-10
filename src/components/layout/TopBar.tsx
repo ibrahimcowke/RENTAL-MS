@@ -6,6 +6,7 @@ import {
   User as UserIcon 
 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
+import NotificationCenter from './NotificationCenter';
 
 const TopBar = () => {
   const { language, setLanguage, currency, setCurrency } = useStore();
@@ -44,10 +45,7 @@ const TopBar = () => {
 
         <div className="h-6 w-px bg-slate-200 mx-1 hidden sm:block" />
 
-        <button className="relative p-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 border-2 border-white rounded-full"></span>
-        </button>
+        <NotificationCenter />
 
         <button className="flex items-center gap-2 p-1 pl-1 md:pl-3 hover:bg-slate-100 rounded-xl transition-colors border border-transparent hover:border-slate-100">
           <div className="hidden md:block text-right mr-1">

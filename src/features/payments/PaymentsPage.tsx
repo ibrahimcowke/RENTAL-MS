@@ -11,11 +11,14 @@ import {
   AlertCircle,
   Edit,
   Trash2,
-  RefreshCw
+  RefreshCw,
+  Download
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import confetti from 'canvas-confetti';
 import { useStore } from '../../store/useStore';
+import { generateReceiptPDF } from '../../lib/ReceiptService';
 import PaymentModal from './PaymentModal';
 
 const containerVariants = {
@@ -77,6 +80,26 @@ const PaymentsPage = () => {
   const handleAdd = () => {
     setSelectedPayment(null);
     setIsModalOpen(true);
+  };
+
+  const handleDownloadReceipt = (payment: any) => {
+    generateReceiptPDF({
+      receiptNumber: `RCP-${payment.id.substring(0, 6).toUpperCase()}`,
+      tenantName: payment.tenant,
+      amount: payment.amount,
+      date: payment.date,
+      paymentMethod: payment.method,
+      propertyAddress: 'Managed Premium Property', // Simplified for demo
+      language: language
+    });
+
+    // Premium Feedback
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#0F766E', '#F59E0B', '#14B8A6']
+    });
   };
 
   return (
@@ -226,6 +249,13 @@ const PaymentsPage = () => {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button 
+                        onClick={() => handleDownloadReceipt(payment)}
+                        className="p-2 hover:bg-emerald-50 rounded-lg text-slate-400 hover:text-emerald-500 transition-all"
+                        title="Download Receipt"
+                      >
+                        <Download className="w-4 h-4" />
+                      </button>
                       <button 
                         onClick={() => handleEdit(payment)}
                         className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-primary transition-all"

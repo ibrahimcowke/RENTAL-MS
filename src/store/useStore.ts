@@ -55,6 +55,15 @@ interface MaintenanceRequest {
   date: string;
 }
 
+export interface AppNotification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'info' | 'warning' | 'error' | 'success';
+  date: string;
+  read: boolean;
+}
+
 interface AppState {
   user: UserProfile | null;
   language: 'so' | 'en';
@@ -67,6 +76,7 @@ interface AppState {
   tenants: Tenant[];
   payments: Payment[];
   maintenance: MaintenanceRequest[];
+  notifications: AppNotification[];
 
   // Actions
   setUser: (user: UserProfile | null) => void;
@@ -74,6 +84,11 @@ interface AppState {
   setCurrency: (cur: 'USD' | 'SOS') => void;
   toggleDarkMode: () => void;
   fetchData: () => Promise<void>;
+  
+  // Notification Actions
+  addNotification: (n: Omit<AppNotification, 'id' | 'date' | 'read'>) => void;
+  markAsRead: (id: string) => void;
+  clearNotifications: () => void;
 
   // CRUD Actions
   addProperty: (p: Omit<Property, 'id'>) => Promise<void>;
@@ -106,11 +121,32 @@ export const useStore = create<AppState>()(
       tenants: [],
       payments: [],
       maintenance: [],
+      notifications: [],
 
       setUser: (user) => set({ user }),
       setLanguage: (language) => set({ language }),
       setCurrency: (currency) => set({ currency }),
       toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
+
+      addNotification: (n) => set((state) => ({
+        notifications: [
+          {
+            ...n,
+            id: Math.random().toString(36).substring(7),
+            date: new Date().toISOString(),
+            read: false,
+          },
+          ...state.notifications,
+        ].slice(0, 20), // Keep last 20
+      })),
+
+      markAsRead: (id) => set((state) => ({
+        notifications: state.notifications.map((n) =>
+          n.id === id ? { ...n, read: true } : n
+        ),
+      })),
+
+      clearNotifications: () => set({ notifications: [] }),
 
       fetchData: async () => {
         set({ isLoading: true });
@@ -128,18 +164,29 @@ export const useStore = create<AppState>()(
             return acc;
           }, {});
 
+          const mappedProperties = (props.data || []).map(p => ({
+            ...p,
+            district: districtMap[p.district_id] || 'Unknown',
+            rent_amount: p.rent_amount || 0,
+            images: p.images || [],
+            video_url: p.video_url || '',
+            bedrooms: p.bedrooms || 0,
+            bathrooms: p.bathrooms || 0,
+            kitchens: p.kitchens || 0,
+            parent_id: p.parent_id || null
+          }));
+
+          const mappedPayments = pays.data?.map(p => ({
+            id: p.id,
+            tenant: 'Lease ID: ' + p.lease_id,
+            amount: p.amount_paid,
+            date: p.payment_date,
+            method: p.payment_method,
+            status: p.payment_status
+          })) || [];
+
           set({ 
-            properties: (props.data || []).map(p => ({
-              ...p,
-              district: districtMap[p.district_id] || 'Unknown',
-              rent_amount: p.rent_amount || 0,
-              images: p.images || [],
-              video_url: p.video_url || '',
-              bedrooms: p.bedrooms || 0,
-              bathrooms: p.bathrooms || 0,
-              kitchens: p.kitchens || 0,
-              parent_id: p.parent_id || null
-            })), 
+            properties: mappedProperties, 
             tenants: tens.data?.map(t => ({ 
               id: t.id, 
               name: t.full_name, 
@@ -148,16 +195,45 @@ export const useStore = create<AppState>()(
               reliability: t.reliability_score, 
               status: 'Active' 
             })) || [],
-            payments: pays.data?.map(p => ({
-              id: p.id,
-              tenant: 'Lease ID: ' + p.lease_id,
-              amount: p.amount_paid,
-              date: p.payment_date,
-              method: p.payment_method,
-              status: p.payment_status
-            })) || [],
+            payments: mappedPayments,
             maintenance: mains.data || [] 
           });
+
+          // Generate auto-notifications for premium feel
+          const newNotifications: any[] = [];
+          
+          // Check for overdue payments
+          mappedPayments.filter(p => p.status === 'overdue').forEach(p => {
+             newNotifications.push({
+                title: 'Payment Overdue',
+                message: `Payment of $${p.amount} is overdue for ${p.tenant}`,
+                type: 'error'
+             });
+          });
+
+          // Check for urgent maintenance
+          mains.data?.filter(m => m.priority === 'urgent' || m.priority === 'emergency').forEach(m => {
+             newNotifications.push({
+                title: 'Emergency Maintenance',
+                message: `Urgent request: ${m.title} at ${m.property}`,
+                type: 'warning'
+             });
+          });
+
+          if (newNotifications.length > 0) {
+            set((state) => ({
+              notifications: [
+                ...newNotifications.map(n => ({
+                  ...n,
+                  id: Math.random().toString(36).substring(7),
+                  date: new Date().toISOString(),
+                  read: false
+                })),
+                ...state.notifications
+              ].filter((v, i, a) => a.findIndex(t => (t.message === v.message)) === i).slice(0, 20)
+            }));
+          }
+
         } catch (error) {
           console.error('Fetch error:', error);
           toast.error('Failed to load data from server');
