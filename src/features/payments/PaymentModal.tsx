@@ -1,19 +1,14 @@
-import { X, DollarSign, Calendar, Wallet, User } from 'lucide-react';
+import { X, DollarSign, Calendar, Wallet, User, Zap, ChevronRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
+import { cn } from '../../utils/cn';
 
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   payment?: any;
 }
-
-import { X, DollarSign, Calendar, Wallet, User, Zap, ChevronRight } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useStore } from '../../store/useStore';
-import { cn } from '../../utils/cn';
 
 const PaymentModal = ({ isOpen, onClose, payment }: PaymentModalProps) => {
   const { language, tenants, addPayment, updatePayment } = useStore();

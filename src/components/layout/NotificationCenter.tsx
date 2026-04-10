@@ -8,7 +8,7 @@ import {
   Trash2,
   Clock
 } from 'lucide-react';
-import { useStore, AppNotification } from '../../store/useStore';
+import { useStore, type AppNotification } from '../../store/useStore';
 import { formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
 

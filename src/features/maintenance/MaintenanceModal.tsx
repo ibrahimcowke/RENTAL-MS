@@ -1,14 +1,3 @@
-import { X, Wrench, Building2, User } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useStore } from '../../store/useStore';
-
-interface MaintenanceModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  request?: any;
-}
-
 import { X, Wrench, Building2, User, Zap, ChevronRight, AlertTriangle, Clock, CheckCircle2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';

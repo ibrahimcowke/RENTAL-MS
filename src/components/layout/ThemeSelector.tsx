@@ -1,5 +1,5 @@
 import { Palette, Check } from 'lucide-react';
-import { useStore, AppTheme } from '../../store/useStore';
+import { useStore, type AppTheme } from '../../store/useStore';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 

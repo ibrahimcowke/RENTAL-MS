@@ -10,11 +10,11 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import { useStore } from '../../store/useStore';
 import { cn } from '../../utils/cn';
 import TenantModal from './TenantModal';
 import DashboardStatCard from '../dashboard/DashboardStatCard';
-import { cn } from '../../utils/cn';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -40,13 +40,6 @@ const itemVariants = {
 
 const TenantsPage = () => {
   const { language, tenants, deleteTenant, fetchData, isLoading } = useStore();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTenant, setSelectedTenant] = useState<any>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTenant, setSelectedTenant] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
