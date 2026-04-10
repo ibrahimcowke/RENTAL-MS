@@ -136,16 +136,31 @@ ALTER TABLE maintenance_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activity_logs ENABLE ROW LEVEL SECURITY;
 
 -- Polices (Optimized for Landlord isolation)
+DROP POLICY IF EXISTS "Public districts view" ON districts;
 CREATE POLICY "Public districts view" ON districts FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Landlords manage own data" ON profiles;
 CREATE POLICY "Landlords manage own data" ON profiles FOR ALL USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Landlords manage own properties" ON properties;
 CREATE POLICY "Landlords manage own properties" ON properties FOR ALL USING (landlord_id = auth.uid() OR landlord_id = '00000000-0000-0000-0000-000000000000');
+
+DROP POLICY IF EXISTS "Landlords manage own tenants" ON tenants;
 CREATE POLICY "Landlords manage own tenants" ON tenants FOR ALL USING (landlord_id = auth.uid() OR landlord_id = '00000000-0000-0000-0000-000000000000');
+
+DROP POLICY IF EXISTS "Landlords manage own leases" ON leases;
 CREATE POLICY "Landlords manage own leases" ON leases FOR ALL 
     USING (EXISTS (SELECT 1 FROM properties WHERE properties.id = property_id AND (properties.landlord_id = auth.uid() OR properties.landlord_id = '00000000-0000-0000-0000-000000000000')));
+
+DROP POLICY IF EXISTS "Landlords manage own payments" ON payments;
 CREATE POLICY "Landlords manage own payments" ON payments FOR ALL 
     USING (EXISTS (SELECT 1 FROM leases JOIN properties ON leases.property_id = properties.id WHERE leases.id = lease_id AND (properties.landlord_id = auth.uid() OR properties.landlord_id = '00000000-0000-0000-0000-000000000000')));
+
+DROP POLICY IF EXISTS "Landlords manage own maintenance" ON maintenance_requests;
 CREATE POLICY "Landlords manage own maintenance" ON maintenance_requests FOR ALL 
     USING (EXISTS (SELECT 1 FROM properties WHERE properties.id = property_id AND (properties.landlord_id = auth.uid() OR properties.landlord_id = '00000000-0000-0000-0000-000000000000')));
+
+DROP POLICY IF EXISTS "Landlords manage own activity logs" ON activity_logs;
 CREATE POLICY "Landlords manage own activity logs" ON activity_logs FOR ALL USING (user_id = auth.uid() OR user_id = '00000000-0000-0000-0000-000000000000');
 
 -- 4. SEED DATA
