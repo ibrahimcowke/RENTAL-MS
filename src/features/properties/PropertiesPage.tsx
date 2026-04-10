@@ -25,6 +25,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
 import PropertyModal from './PropertyModal';
+import { DashboardStatCard } from '../dashboard/DashboardStatCard';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -115,43 +116,57 @@ const PropertiesPage = () => {
 
   return (
     <div className="p-4 md:p-8 space-y-8 animate-slide-up pb-24 md:pb-8">
-      {/* Header */}
+      {/* Premium Operational Header */}
       <motion.div 
         variants={itemVariants}
-        initial="hidden"
-        animate="visible"
-        className="flex flex-col md:flex-row md:items-center justify-between gap-4"
+        className="relative overflow-hidden group rounded-[2.5rem] bg-slate-900 p-8 text-white shadow-2xl"
       >
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-            <Building2 className="w-8 h-8 text-primary" />
-            {language === 'so' ? 'Maamulka Guryaha' : 'Property Management'}
-          </h1>
-          <p className="text-slate-500 font-medium">
-            {language === 'so' ? 'Maamul guryahaaga, kireyayaasha, iyo dakhliga.' : 'Apartments, Villas & Houses across Mogadishu.'}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          {viewingParentId && (
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/30 transition-all duration-1000" />
+        
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-xl border border-white/10 group-hover:rotate-12 transition-transform duration-500">
+              <Building2 className="w-8 h-8 text-primary" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 text-primary font-black text-[10px] tracking-[0.2em] mb-2 px-1">
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                REAL-TIME PORTFOLIO INTELLIGENCE
+              </div>
+              <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-white transition-all group-hover:tracking-normal whitespace-nowrap">
+                {language === 'so' ? 'Maamulka Guryaha' : 'Property Inventory'}
+              </h1>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mt-2 ml-1">
+                {language === 'so' ? 'Maamul guryahaaga iyo dakhliga.' : 'Strategic Asset Management & Oversight'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {viewingParentId && (
+              <button
+                onClick={() => setViewingParentId(null)}
+                className="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 backdrop-blur-xl border border-white/10 shadow-lg active:scale-95"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                {language === 'so' ? 'Dib u laabo' : 'Back to Top'}
+              </button>
+            )}
             <button
-              onClick={() => setViewingParentId(null)}
-              className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-600 hover:text-primary transition-all flex items-center gap-2 font-bold shadow-sm"
+               onClick={() => fetchData()}
+               className="p-3.5 bg-white/5 hover:bg-white/10 text-white/50 hover:text-white rounded-2xl transition-all border border-white/10 backdrop-blur-xl active:scale-90"
+               disabled={isLoading}
+             >
+               <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+             </button>
+            <button 
+              onClick={handleAdd} 
+              className="px-8 py-3.5 bg-primary hover:bg-primary/90 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 shadow-xl shadow-primary/20 active:scale-95 border-none"
             >
-              <ArrowLeft className="w-5 h-5" />
-              {language === 'so' ? 'Dib u laabo' : 'Back'}
+              <Plus className="w-5 h-5" />
+              {language === 'so' ? 'Ku dar Guri' : 'Initialize Asset'}
             </button>
-          )}
-          <button
-            onClick={() => fetchData()}
-            className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-primary transition-all hover:bg-slate-50 shadow-sm"
-            disabled={isLoading}
-          >
-            <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
-          </button>
-          <button onClick={handleAdd} className="btn-primary shadow-lg shadow-primary/20">
-            <Plus className="w-5 h-5" />
-            {language === 'so' ? 'Ku dar Guri' : 'Add Property'}
-          </button>
+          </div>
         </div>
       </motion.div>
 
@@ -175,37 +190,51 @@ const PropertiesPage = () => {
         )}
       </AnimatePresence>
 
-      {/* Stats */}
+      {/* Real-time Insights Cards */}
       <motion.div
         variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="grid grid-cols-2 lg:grid-cols-4 gap-4"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
       >
-        {[
-          { label: language === 'so' ? 'Wadarta' : 'Total Units', value: properties.filter(p => !p.parent_id).length, icon: Building2, color: 'text-blue-600', bg: 'bg-blue-50' },
-          { label: 'Apartments', value: properties.filter(p => p.property_type === 'Apartment' && !p.parent_id).length, icon: Layers, color: 'text-blue-600', bg: 'bg-blue-50' },
-          { label: 'Villas', value: properties.filter(p => p.property_type === 'Villa').length, icon: Home, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-          { label: 'Normal Houses', value: properties.filter(p => p.property_type === 'Normal House').length, icon: Building2, color: 'text-amber-600', bg: 'bg-amber-50' },
-        ].map((stat, i) => (
-          <motion.div variants={itemVariants} key={i} className="glass-card p-4 flex items-center gap-4 border-slate-100 hover:shadow-lg transition-shadow">
-            <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center shrink-0`}>
-              <stat.icon className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider leading-tight">{stat.label}</p>
-              <p className="text-2xl font-black text-slate-900">{stat.value}</p>
-            </div>
-          </motion.div>
-        ))}
+        <DashboardStatCard
+          label={language === 'so' ? 'Dhammaan Guryaha' : 'Total Managed Units'}
+          value={properties.filter(p => !p.parent_id).length.toString()}
+          trend="+12%"
+          trendType="up"
+          icon={Building2}
+          color="blue"
+        />
+        <DashboardStatCard
+          label="Luxury Villas"
+          value={properties.filter(p => p.property_type === 'Villa').length.toString()}
+          trend="+5%"
+          trendType="up"
+          icon={Home}
+          color="emerald"
+        />
+        <DashboardStatCard
+          label="Multi-Unit Apartments"
+          value={properties.filter(p => p.property_type === 'Apartment' && !p.parent_id).length.toString()}
+          trend="+8%"
+          trendType="up"
+          icon={Layers}
+          color="indigo"
+        />
+        <DashboardStatCard
+          label="Operational Revenue"
+          value={`$${properties.reduce((sum, p) => sum + (p.rent_amount || 0), 0).toLocaleString()}`}
+          trend="+15%"
+          trendType="up"
+          icon={TrendingUp}
+          color="amber"
+        />
       </motion.div>
 
-      {/* Filters */}
-      <div className="space-y-3">
-        {/* Type Pills */}
-        <div className="flex gap-2 flex-wrap">
+      {/* Enhanced Filters */}
+      <div className="space-y-6">
+        {/* Type Selection */}
+        <div className="flex gap-3 flex-wrap">
           {[
-            { id: 'all', label: language === 'so' ? 'Dhammaan' : 'All Types', icon: Building2 },
+            { id: 'all', label: language === 'so' ? 'Dhammaan' : 'All Assest', icon: Building2 },
             { id: 'Apartment', label: language === 'so' ? 'Qolal' : 'Apartments', icon: Layers },
             { id: 'Villa', label: language === 'so' ? 'Fillooyin' : 'Villas', icon: Home },
             { id: 'Normal House', label: language === 'so' ? 'Guryo' : 'Houses', icon: Building2 },
@@ -213,44 +242,44 @@ const PropertiesPage = () => {
             <button
               key={t.id}
               onClick={() => setTypeFilter(t.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs transition-all border ${
+              className={`group flex items-center gap-3 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all border ${
                 typeFilter === t.id
-                  ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
-                  : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'
+                  ? 'bg-primary text-white border-primary shadow-xl shadow-primary/20 scale-[1.05]'
+                  : 'bg-white text-slate-400 border-slate-200 hover:border-primary/40 hover:text-primary backdrop-blur-xl'
               }`}
             >
-              <t.icon className="w-3.5 h-3.5" />
+              <t.icon className={cn("w-4 h-4 transition-transform group-hover:rotate-12", typeFilter === t.id ? "text-white" : "text-slate-300")} />
               {t.label}
             </button>
           ))}
         </div>
 
-        {/* Search & District */}
-        <div className="flex flex-col md:flex-row gap-4">
+        {/* Global Hub Search */}
+        <div className="flex flex-col xl:flex-row gap-4">
           <div className="relative flex-1 group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-primary transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-primary transition-colors" />
             <input
               type="text"
-              placeholder={language === 'so' ? 'Ka raadi magaca ama degmada...' : 'Search by name or district...'}
+              placeholder={language === 'so' ? 'Ka raadi magaca ama degmada...' : 'Global search by asset name or district...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-11 pr-4 focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all shadow-sm"
+              className="w-full bg-white border border-slate-200 rounded-[2rem] py-4 pl-12 pr-6 outline-none focus:ring-8 focus:ring-primary/5 focus:border-primary transition-all shadow-sm font-bold text-slate-700 placeholder:text-slate-300 placeholder:font-medium"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 pointer-events-none" />
               <select
                 value={districtFilter}
                 onChange={(e) => setDistrictFilter(e.target.value)}
-                className="bg-white border border-slate-200 pl-9 pr-4 py-3 rounded-2xl font-bold text-slate-600 outline-none focus:ring-4 focus:ring-primary/5 appearance-none shadow-sm"
+                className="bg-white border border-slate-200 pl-11 pr-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-500 outline-none focus:ring-8 focus:ring-primary/5 appearance-none shadow-sm cursor-pointer hover:border-primary/40 transition-all"
               >
                 {DISTRICTS.map(d => <option key={d}>{d}</option>)}
               </select>
             </div>
-            <button className="flex items-center gap-2 bg-white border border-slate-200 px-4 py-3 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
+            <button className="flex items-center gap-3 bg-slate-900 border-none text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 active:scale-95">
               <Filter className="w-4 h-4" />
-              {language === 'so' ? 'Shaandheey' : 'Filter'}
+              {language === 'so' ? 'SHAANDHEEY' : 'APPLY FILTERS'}
             </button>
           </div>
         </div>
@@ -287,160 +316,147 @@ const PropertiesPage = () => {
               <motion.div
                 variants={itemVariants}
                 key={property.id}
-                className="glass-card group hover:shadow-2xl hover:shadow-primary/5 transition-all overflow-hidden border-slate-100 flex flex-col"
+                className="relative flex flex-col group rounded-[2.5rem] bg-white border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 overflow-hidden"
               >
-                {/* Type accent bar */}
-                <div className={`h-1 w-full bg-gradient-to-r ${typeMeta.gradient.replace('/20','').replace('/10','')}`} />
+                {/* Visual Accent */}
+                <div className={`absolute top-0 left-0 w-2 h-full bg-gradient-to-b ${typeMeta.gradient.replace('/20','').replace('/10','')}`} />
 
-                {/* Image/Thumbnail */}
-                <div className="aspect-video bg-slate-100 relative overflow-hidden">
-                  {/* Badges top-right */}
-                  <div className="absolute top-3 right-3 z-20 flex flex-col gap-2 items-end">
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md shadow-sm border ${
-                      property.status === 'occupied' ? 'bg-emerald-500/90 text-white border-emerald-400' :
-                      property.status === 'maintenance' ? 'bg-amber-500/90 text-white border-amber-400' :
-                      'bg-blue-500/90 text-white border-blue-400'
+                {/* Media Section */}
+                <div className="aspect-[16/10] relative overflow-hidden m-2 rounded-[2rem]">
+                  {/* Floating Badges */}
+                  <div className="absolute top-4 left-4 z-20 flex flex-wrap gap-2">
+                    <span className={`px-4 py-1.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-xl border-none shadow-lg ${
+                      property.status === 'occupied' ? 'bg-emerald-500 text-white' :
+                      property.status === 'maintenance' ? 'bg-orange-500 text-white' :
+                      'bg-sky-500 text-white'
                     }`}>
                       {property.status}
                     </span>
+                    <div className="bg-white/90 backdrop-blur-xl text-slate-900 px-3 py-1.5 rounded-2xl text-[9px] font-black border border-white/20 flex items-center gap-1.5 shadow-sm">
+                      <TypeIcon className={cn("w-3.5 h-3.5", typeMeta.color)} />
+                      {property.property_type.toUpperCase()}
+                    </div>
+                  </div>
+
+                  <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
                     {property.video_url && (
-                      <div className="bg-red-500/90 backdrop-blur-md text-white px-2 py-1 rounded-lg text-[9px] font-bold border border-red-400 flex items-center gap-1">
-                        <Play className="w-2.5 h-2.5 fill-current" />
-                        TOUR
-                      </div>
-                    )}
-                    {sectionCount > 0 && (
-                      <div className="bg-primary/90 backdrop-blur-md text-white px-2 py-1 rounded-lg text-[9px] font-bold border border-primary/40 flex items-center gap-1">
-                        <FolderTree className="w-2.5 h-2.5" />
-                        {sectionCount} SECTIONS
+                      <div className="bg-rose-500 text-white p-2.5 rounded-full shadow-lg hover:scale-110 transition-transform">
+                        <Play className="w-3.5 h-3.5 fill-current" />
                       </div>
                     )}
                   </div>
 
-                  {/* Badges bottom-left */}
-                  <div className="absolute bottom-3 left-3 right-3 z-20 flex justify-between items-center">
-                    <div className={`flex items-center gap-1.5 ${typeMeta.bg} ${typeMeta.color} px-2 py-1.5 rounded-lg text-[10px] font-bold backdrop-blur-md border ${typeMeta.border}`}>
-                      <TypeIcon className="w-3 h-3" />
-                      {property.property_type}
-                      {property.building_number && (
-                        <span className="ml-1 flex items-center gap-0.5 text-blue-500 font-black">
-                          <Hash className="w-2.5 h-2.5" />{property.building_number}
-                        </span>
-                      )}
+                  {/* Pricing Over Image */}
+                  <div className="absolute bottom-4 left-4 right-4 z-20 flex justify-between items-end">
+                    <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-2xl p-3 px-4 shadow-2xl">
+                       <p className="text-[8px] font-black text-white/60 uppercase tracking-widest mb-0.5">Asset Valuation</p>
+                       <p className="text-xl font-black text-white">${property.rent_amount.toLocaleString()}</p>
                     </div>
                     {property.images && property.images.length > 0 && (
-                      <div className="bg-slate-900/60 backdrop-blur-sm text-white px-2 py-1 rounded-lg text-[10px] font-bold border border-white/10 flex items-center gap-1">
-                        <ImageIcon className="w-3 h-3" />
+                      <div className="bg-white/10 backdrop-blur-md text-white px-3 py-1.5 rounded-2xl text-[10px] font-black border border-white/20 flex items-center gap-2">
+                        <ImageIcon className="w-3.5 h-3.5" />
                         {property.images.length}
                       </div>
                     )}
                   </div>
 
-                  {/* Image */}
-                  <div className="w-full h-full relative group-hover:scale-110 transition-transform duration-700">
+                  {/* Main Image */}
+                  <div className="w-full h-full group-hover:scale-110 transition-transform duration-1000">
                     {property.images && property.images.length > 0 ? (
                       <img
                         src={property.images[0]}
                         alt={property.name}
                         className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                        }}
                       />
                     ) : (
                       <div className={`w-full h-full bg-gradient-to-br ${typeMeta.gradient} flex items-center justify-center`}>
-                        <TypeIcon className="w-14 h-14 text-slate-300" />
+                        <Building2 className="w-16 h-16 text-white/20" />
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
                   </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-60" />
                 </div>
 
-                {/* Card Body */}
-                <div className="p-5 space-y-4 flex-1">
+                {/* Content Hub */}
+                <div className="p-6 pt-2 flex-1 flex flex-col gap-6">
                   <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-bold text-slate-900 group-hover:text-primary transition-colors text-lg line-clamp-1">{property.name}</h3>
-                      <div className="flex items-center gap-1 text-slate-400 mt-1">
-                        <MapPin className="w-3 h-3" />
-                        <span className="text-xs font-bold uppercase tracking-wider line-clamp-1">{property.district}</span>
+                    <div className="space-y-1">
+                      <h3 className="font-black text-slate-900 text-xl tracking-tighter leading-none group-hover:text-primary transition-colors">
+                        {property.name}
+                      </h3>
+                      <div className="flex items-center gap-2 text-slate-400">
+                        <MapPin className="w-3.5 h-3.5" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">{property.district}</span>
                       </div>
                     </div>
-                    <div className="flex gap-1">
-                      <button
-                        onClick={() => handleEdit(property)}
-                        className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-primary transition-all"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(property.id)}
-                        className="p-2 hover:bg-red-50 rounded-lg text-slate-400 hover:text-red-600 transition-all"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                    <div className="flex gap-2">
+                       <button onClick={() => handleEdit(property)} className="p-2.5 rounded-xl bg-slate-50 text-slate-400 hover:text-primary hover:bg-primary/5 transition-all">
+                         <Edit className="w-4 h-4" />
+                       </button>
+                       <button onClick={() => handleDelete(property.id)} className="p-2.5 rounded-xl bg-slate-50 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all">
+                         <Trash2 className="w-4 h-4" />
+                       </button>
                     </div>
                   </div>
 
-                  {/* Specs */}
-                  <div className="flex items-center gap-4 py-3 border-y border-slate-50">
+                  {/* Specs Intelligence Grid */}
+                  <div className="grid grid-cols-3 gap-3">
                     {property.property_type === 'Apartment' ? (
                       <>
-                        <div className="flex items-center gap-1.5 text-slate-500">
-                          <Bed className="w-4 h-4 text-blue-300" />
-                          <span className="text-xs font-bold">{property.bedrooms}<span className="text-[10px] ml-0.5 text-slate-400 font-medium">BD</span></span>
+                        <div className="flex flex-col gap-1 p-3 rounded-2xl bg-slate-50 border border-slate-100 group-hover:bg-blue-50/50 group-hover:border-blue-100 transition-colors">
+                           <Bed className="w-4 h-4 text-blue-500" />
+                           <span className="text-sm font-black text-slate-700">{property.bedrooms} BD</span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-slate-500">
-                          <Bath className="w-4 h-4 text-blue-300" />
-                          <span className="text-xs font-bold">{property.bathrooms}<span className="text-[10px] ml-0.5 text-slate-400 font-medium">BT</span></span>
+                        <div className="flex flex-col gap-1 p-3 rounded-2xl bg-slate-50 border border-slate-100 group-hover:bg-blue-50/50 group-hover:border-blue-100 transition-colors">
+                           <Bath className="w-4 h-4 text-blue-500" />
+                           <span className="text-sm font-black text-slate-700">{property.bathrooms} BT</span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-slate-500">
-                          <Utensils className="w-4 h-4 text-blue-300" />
-                          <span className="text-xs font-bold">{property.kitchens}<span className="text-[10px] ml-0.5 text-slate-400 font-medium">KT</span></span>
+                        <div className="flex flex-col gap-1 p-3 rounded-2xl bg-slate-50 border border-slate-100 group-hover:bg-blue-50/50 group-hover:border-blue-100 transition-colors">
+                           <Utensils className="w-4 h-4 text-blue-500" />
+                           <span className="text-sm font-black text-slate-700">{property.kitchens} KT</span>
                         </div>
                       </>
                     ) : (
                       <>
-                        <div className="flex items-center gap-1.5 text-slate-500">
-                          <Maximize2 className={`w-4 h-4 ${property.property_type === 'Villa' ? 'text-emerald-300' : 'text-amber-300'}`} />
-                          <span className="text-xs font-bold">
-                            {property.floor_area ? `${property.floor_area} m²` : 'N/A'}
-                            <span className="text-[10px] ml-0.5 text-slate-400 font-medium"> Area</span>
-                          </span>
+                        <div className="col-span-2 flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100 group-hover:bg-emerald-50/50 group-hover:border-emerald-100 transition-colors">
+                           <Maximize2 className={cn("w-5 h-5", typeMeta.color)} />
+                           <div>
+                              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Total Area</p>
+                              <p className="text-sm font-black text-slate-700">{property.floor_area || '--'} m²</p>
+                           </div>
                         </div>
-                        {sectionCount > 0 && (
-                          <div className="flex items-center gap-1.5 text-slate-500">
-                            <Layers className={`w-4 h-4 ${property.property_type === 'Villa' ? 'text-emerald-300' : 'text-amber-300'}`} />
-                            <span className="text-xs font-bold">{sectionCount}<span className="text-[10px] ml-0.5 text-slate-400 font-medium"> Sections</span></span>
-                          </div>
-                        )}
+                        <div className="flex items-center justify-center p-3 rounded-2xl bg-slate-50 border border-slate-100 group-hover:bg-emerald-50/50 group-hover:border-emerald-100 transition-colors">
+                           <FolderTree className={cn("w-5 h-5", typeMeta.color)} />
+                        </div>
                       </>
                     )}
                   </div>
 
-                  {/* Footer */}
-                  <div className="pt-4 border-t border-slate-50 flex items-center justify-between">
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{language === 'so' ? 'Qiimaha Bishii' : 'Monthly Rent'}</p>
-                      <p className="text-xl font-black text-primary">${property.rent_amount.toLocaleString()}</p>
-                    </div>
+                  {/* Interactive Control Footer */}
+                  <div className="mt-auto pt-4 border-t border-slate-50">
                     {!property.parent_id ? (
                       <button
                         onClick={() => setViewingParentId(property.id)}
-                        className={`px-4 py-2 text-white rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-lg transition-all flex items-center gap-2 hover:scale-[1.04] ${
-                          property.property_type === 'Villa' ? 'bg-emerald-600 shadow-emerald-500/20' :
-                          property.property_type === 'Normal House' ? 'bg-amber-600 shadow-amber-500/20' :
-                          'bg-blue-600 shadow-blue-500/20'
-                        }`}
+                        className={cn(
+                          "w-full py-4 rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.25em] text-white shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95",
+                          typeMeta.gradient.replace('/20','').replace('/10','').replace('from-','bg-')
+                        )}
                       >
-                        <FolderTree className="w-3 h-3" />
-                        {language === 'so' ? 'EEG QAYBAHA' : 'VIEW SECTIONS'}
+                        Explore Asset Sections
+                        <ChevronRight className="w-4 h-4" />
                       </button>
                     ) : (
-                      <button className="p-2 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
-                        <ChevronRight className="w-5 h-5" />
-                      </button>
+                      <div className="flex items-center justify-between">
+                         <div className="flex items-center gap-2">
+                            <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                               <Hash className="w-4 h-4" />
+                            </div>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Section Detail</span>
+                         </div>
+                         <button className="p-3 bg-slate-900 text-white rounded-2xl hover:bg-primary transition-all shadow-lg active:scale-90">
+                           <ChevronRight className="w-5 h-5" />
+                         </button>
+                      </div>
                     )}
                   </div>
                 </div>

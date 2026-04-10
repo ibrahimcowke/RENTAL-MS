@@ -218,6 +218,19 @@
     @apply shadow-2xl;
   }
 
+  .glass-zap {
+    @apply backdrop-blur-3xl border shadow-2xl rounded-[3rem] transition-all duration-500 overflow-hidden;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  }
+
+  .glass-zap:hover {
+    @apply -translate-y-1 shadow-amber-500/10;
+    border-color: rgba(var(--secondary), 0.3);
+    box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(var(--secondary), 0.2);
+  }
+
   .btn-primary {
     @apply text-white font-bold px-5 py-2.5 rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg;
     background: hsl(var(--p-h, 172) var(--p-s, 77%) var(--p-l, 26%));

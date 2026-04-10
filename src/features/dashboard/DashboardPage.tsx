@@ -9,7 +9,9 @@ import {
   RefreshCw,
   Zap,
   ChevronRight,
-  LayoutGrid
+  LayoutGrid,
+  Activity,
+  ArrowRight
 } from 'lucide-react';
 import { 
   CartesianGrid, 
@@ -20,15 +22,17 @@ import {
   XAxis,
   YAxis
 } from 'recharts';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { useStore } from '../../store/useStore';
 import AIInsightHub from './AIInsightHub';
 import RecentActivity from './RecentActivity';
 import DashboardStatCard from './DashboardStatCard';
+import PortfolioPulse from './PortfolioPulse';
 import PropertyModal from '../properties/PropertyModal';
 import TenantModal from '../tenants/TenantModal';
 import PaymentModal from '../payments/PaymentModal';
+import { cn } from '../../utils/cn';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -39,33 +43,22 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 30 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as any }
+    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
   }
-};
-
-// Mock historical data generator for sparklines
-const generateSparkData = (base: number, variance: number = 20) => {
-  return Array.from({ length: 7 }, (_, i) => ({
-    day: i,
-    value: base + Math.floor(Math.random() * variance * 2) - variance
-  }));
 };
 
 const DashboardPage = () => {
   const { language, currency, properties, tenants, payments, fetchData, isLoading } = useStore();
-  
-  // Modal states
   const [activeModal, setActiveModal] = useState<'property' | 'tenant' | 'payment' | null>(null);
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  // Calculate Real Stats
   const totalProperties = properties.length;
   const activeTenants = tenants.length;
   const monthlyIncome = payments
@@ -75,50 +68,38 @@ const DashboardPage = () => {
 
   const stats = [
     { 
-      title: language === 'so' ? 'Guryaha Guud' : 'Total Properties', 
+      title: language === 'so' ? 'Guryaha Guud' : 'Total Assets', 
       value: totalProperties.toString(), 
       icon: Building2, 
-      color: 'bg-primary',
+      color: 'bg-slate-900',
       trend: 12,
-      chartData: generateSparkData(30, 5)
+      chartData: Array.from({ length: 15 }, (_, i) => ({ value: 20 + Math.random() * 40 }))
     },
     { 
-      title: language === 'so' ? 'Kiraystayaasha' : 'Active Tenants', 
-      value: activeTenants.toString(), 
+      title: language === 'so' ? 'Kiraystayaasha' : 'Occupancy', 
+      value: `${properties.length > 0 ? Math.round((activeTenants / properties.length) * 100) : 0}%`, 
       icon: Users, 
-      color: 'bg-blue-600',
+      color: 'bg-primary',
       trend: 8,
-      chartData: generateSparkData(25, 4)
+      chartData: Array.from({ length: 15 }, (_, i) => ({ value: 30 + Math.random() * 20 }))
     },
     { 
-      title: language === 'so' ? 'Dakhliga (Guud)' : 'Monthly Income', 
+      title: language === 'so' ? 'Dakhliga (Guud)' : 'Yield Revenue', 
       value: currency === 'USD' ? `$${monthlyIncome.toLocaleString()}` : `SOS ${(monthlyIncome * 25000).toLocaleString()}`, 
       icon: DollarSign, 
-      color: 'bg-teal-600',
+      color: 'bg-emerald-600',
       trend: 15,
-      chartData: generateSparkData(1000, 100)
+      chartData: Array.from({ length: 15 }, (_, i) => ({ value: 10 + Math.random() * 80 }))
     },
     { 
-      title: language === 'so' ? 'Lacag-dhiman' : 'Overdue', 
+      title: language === 'so' ? 'Lacag-dhiman' : 'Delinquency', 
       value: overdueCount.toString(), 
       icon: AlertCircle, 
-      color: 'bg-red-500',
+      color: 'bg-rose-500',
       trend: -5,
-      chartData: generateSparkData(10, 3)
+      chartData: Array.from({ length: 15 }, (_, i) => ({ value: 50 - Math.random() * 30 }))
     },
   ];
-
-  // Derive District Performance
-  const districts = [...new Set(properties.map(p => p.district))];
-  const districtData = districts.map(name => {
-    const propsInDist = properties.filter(p => p.district === name);
-    const occupied = propsInDist.filter(p => p.status === 'occupied').length;
-    return {
-      name,
-      total: propsInDist.length,
-      occupancy: propsInDist.length > 0 ? Math.round((occupied / propsInDist.length) * 100) : 0
-    };
-  }).sort((a, b) => b.total - a.total).slice(0, 5);
 
   const incomeTrend = [
     { month: 'Jan', amount: 10200 },
@@ -128,254 +109,257 @@ const DashboardPage = () => {
   ];
 
   return (
-    <div className="p-4 md:p-8 space-y-8 animate-slide-up pb-24 md:pb-8">
-      {/* 1. TOP HEADER & QUICK ACTIONS */}
-      <motion.div 
-        variants={itemVariants}
-        initial="hidden"
-        animate="visible"
-        className="flex flex-col xl:flex-row xl:items-center justify-between gap-6"
-      >
-        <div>
-          <div className="flex items-center gap-2 text-primary font-black text-[10px] tracking-[0.2em] mb-2">
-            <Zap className="w-3 h-3 fill-current" />
-             REAL-TIME OVERVIEW
-          </div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-             <LayoutGrid className="w-8 h-8 text-primary" />
-             {language === 'so' ? 'Maamulka Guryaha' : 'Portfolio Dashboard'}
-          </h1>
-          <p className="text-slate-500 font-medium mt-1">
-             {language === 'so' ? 'Kusoo dhowaad maamulka guryaha degmooyinka.' : 'Managing your Mogadishu rental portfolio with precision.'}
-          </p>
-        </div>
-
-        {/* Quick Actions Bar */}
-        <div className="flex items-center gap-3 overflow-x-auto pb-2 xl:pb-0 scrollbar-hide">
-          <button 
-            onClick={() => setActiveModal('property')}
-            className="flex items-center gap-2 bg-primary text-white px-4 py-3 rounded-2xl font-bold text-xs shadow-lg shadow-primary/20 hover:scale-[1.05] active:scale-[0.98] transition-all whitespace-nowrap"
-          >
-            <Plus className="w-4 h-4" />
-            Add Property
-          </button>
-          <button 
-            onClick={() => setActiveModal('tenant')}
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-3 rounded-2xl font-bold text-xs shadow-lg shadow-blue-500/20 hover:scale-[1.05] active:scale-[0.98] transition-all whitespace-nowrap"
-          >
-            <Plus className="w-4 h-4" />
-            Add Tenant
-          </button>
-          <button 
-            onClick={() => setActiveModal('payment')}
-            className="flex items-center gap-2 bg-teal-600 text-white px-4 py-3 rounded-2xl font-bold text-xs shadow-lg shadow-teal-500/20 hover:scale-[1.05] active:scale-[0.98] transition-all whitespace-nowrap"
-          >
-            <Plus className="w-4 h-4" />
-            Add Payment
-          </button>
-          <button 
-            onClick={() => fetchData()}
-            className="p-3.5 bg-white border border-slate-200 text-slate-400 rounded-2xl hover:text-primary hover:bg-slate-50 transition-all shadow-sm"
-          >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-          </button>
-        </div>
-      </motion.div>
-
-      {/* 2. STATS GRID & MAIN CONTENT LAYOUT */}
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 items-start">
+    <div className="min-h-screen bg-slate-50/50 pb-20">
+      
+      {/* 1. CINEMATIC ZAP HERO */}
+      <div className="bg-slate-900 pt-12 pb-32 px-4 md:px-8 relative overflow-hidden">
+        {/* Background Effects */}
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[120px] -mr-96 -mt-96 animate-pulse" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-secondary/5 rounded-full blur-[100px] -ml-40 -mb-40" />
         
-        {/* Left Column (3/4 on XL) */}
-        <div className="xl:col-span-3 space-y-8">
-          
-          {/* Stats Grid */}
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-          >
-            {stats.map((stat, idx) => (
-              <DashboardStatCard key={idx} {...stat} />
-            ))}
-          </motion.div>
-
-          <AIInsightHub />
-
-          {/* Detailed Charts Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Income Trend Chart */}
-            <div className="glass-card p-6">
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-primary" />
-                    {language === 'so' ? 'Isbedelka Dakhliga' : 'Revenue Trend'}
-                  </h3>
-                  <p className="text-[10px] font-bold text-slate-400 mt-0.5">MONTHLY CASHFLOW IN USD</p>
-                </div>
-                <div className="flex gap-1.5">
-                  <span className="bg-emerald-50 text-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded-md">+14.2%</span>
-                </div>
-              </div>
-              <div className="h-72 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={incomeTrend}>
-                    <defs>
-                      <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#0F766E" stopOpacity={0.15}/>
-                        <stop offset="95%" stopColor="#0F766E" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fontSize: 10, fontWeight: 700, fill: '#94A3B8'}} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fontWeight: 700, fill: '#94A3B8'}} />
-                    <Tooltip 
-                      contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.1)', fontWeight: 'bold' }}
-                    />
-                    <Area type="monotone" dataKey="amount" stroke="#0F766E" strokeWidth={4} fillOpacity={1} fill="url(#colorIncome)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Portfolio Health & High-Level Metrics */}
-            <div className="glass-card p-6 flex flex-col items-center justify-center text-center relative overflow-hidden bg-slate-900 text-white border-none">
-              {/* Decorative radial blur */}
-              <div className="absolute top-[-20%] right-[-20%] w-64 h-64 bg-primary/20 blur-[80px] rounded-full" />
-              
-              <div className="text-left w-full relative z-10">
-                <h3 className="text-lg font-black mb-1">Portfolio Score</h3>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">Aggregate performance index</p>
-              </div>
-              
-              <div className="relative w-52 h-52 flex items-center justify-center z-10">
-                <svg className="w-full h-full transform -rotate-90">
-                  <circle cx="104" cy="104" r="88" stroke="rgba(255,255,255,0.05)" strokeWidth="16" fill="transparent" />
-                  <motion.circle
-                    cx="104" cy="104" r="88" stroke="hsl(172, 77%, 26%)" strokeWidth="16" fill="transparent"
-                    strokeDasharray={552.9}
-                    initial={{ strokeDashoffset: 552.9 }}
-                    animate={{ strokeDashoffset: 552.9 * (1 - 0.88) }}
-                    transition={{ duration: 1.5, ease: "easeOut" }}
-                    strokeLinecap="round"
-                    className="drop-shadow-[0_0_8px_rgba(15,118,110,0.5)]"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-5xl font-black text-white tracking-tighter">88<span className="text-xl opacity-40 ml-1">%</span></span>
-                  <div className="flex items-center gap-1.5 mt-2 bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-[10px] font-bold">
-                     <TrendingUp className="w-3 h-3" /> EXCELLENT
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8 grid grid-cols-2 gap-4 w-full relative z-10">
-                <div className="p-3 bg-white/5 rounded-2xl border border-white/10">
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Annual Yield</p>
-                  <p className="text-lg font-black text-white">12.4%</p>
-                </div>
-                <div className="p-3 bg-white/5 rounded-2xl border border-white/10">
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Delinquency</p>
-                  <p className="text-lg font-black text-red-400">2.1%</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* District Performance Table/List */}
-          <div className="glass-card p-6">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-secondary" />
-                  District Performance
-                </h3>
-                <p className="text-[10px] font-bold text-slate-400 mt-0.5">OCCUPANCY RATES BY MOGADISHU REGIONS</p>
-              </div>
-              <button className="p-2 hover:bg-slate-50 rounded-xl transition-all">
-                <LayoutGrid className="w-4 h-4 text-slate-400" />
-              </button>
+        <motion.div 
+          initial="hidden"
+          animate="visible"
+          variants={itemVariants}
+          className="max-w-[1600px] mx-auto flex flex-col xl:flex-row items-start xl:items-center justify-between gap-12 relative z-10"
+        >
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+               <div className="px-4 py-1.5 bg-primary/20 backdrop-blur-md border border-primary/20 rounded-full flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-primary animate-ping" />
+                  <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Operational Intelligence Active</span>
+               </div>
+               <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">V4.2.0</span>
             </div>
             
-            <div className="space-y-6">
-              {districtData.map((d, i) => (
-                <div key={i} className="group relative">
-                  <div className="flex justify-between items-center mb-2">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-[10px] font-black text-slate-400 group-hover:bg-primary group-hover:text-white transition-all">
-                        {i + 1}
-                      </div>
-                      <span className="text-sm font-bold text-slate-700">{d.name} District</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                       <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${d.occupancy > 90 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                         {d.occupancy}% OCCUPIED
-                       </span>
-                       <button className="p-1 text-slate-300 hover:text-primary transition-all">
-                          <ChevronRight className="w-4 h-4" />
-                       </button>
-                    </div>
-                  </div>
-                  <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${d.occupancy}%` }}
-                      transition={{ duration: 1, delay: i * 0.1 }}
-                      className={`h-full rounded-full ${d.occupancy > 90 ? 'bg-primary' : d.occupancy > 80 ? 'bg-teal-500' : 'bg-secondary'}`}
-                    />
-                  </div>
-                </div>
+            <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-none mb-6">
+               {language === 'so' ? 'Maamulka Guryaha' : 'Portfolio'}<br/>
+               <span className="text-primary italic">{language === 'so' ? 'Command Center' : 'Command Center'}</span>
+            </h1>
+            
+            <p className="text-xl text-slate-400 font-medium max-w-xl leading-relaxed">
+               {language === 'so' 
+                 ? 'Kusoo dhowaad maamulka guryaha degmooyinka Muqdisho leh hufnaan sare.' 
+                 : 'Next-generation executive dashboard for Mogadishu rental networks and high-yield assets.'}
+            </p>
+          </div>
+
+          {/* Rapid Action Hub */}
+          <div className="flex flex-wrap gap-4">
+             {[
+               { id: 'property', label: 'DEPLOY ASSET', icon: Plus, color: 'bg-primary shadow-primary/40' },
+               { id: 'tenant', label: 'ADD TENANT', icon: Users, color: 'bg-blue-600 shadow-blue-500/40' },
+               { id: 'payment', label: 'SYNC REVENUE', icon: Activity, color: 'bg-emerald-600 shadow-emerald-500/40' },
+             ].map(btn => (
+                <button 
+                  key={btn.id}
+                  onClick={() => setActiveModal(btn.id as any)}
+                  className={cn(
+                    "px-8 py-5 rounded-[2rem] flex items-center gap-4 text-[11px] font-black uppercase tracking-[0.2em] text-white transition-all hover:scale-105 active:scale-95 shadow-2xl border-none",
+                    btn.color
+                  )}
+                >
+                  <btn.icon className="w-5 h-5" />
+                  {btn.label}
+                </button>
+             ))}
+             <button 
+                onClick={() => fetchData()}
+                className="p-5 bg-white/5 border border-white/10 text-white rounded-[2rem] hover:bg-white/10 transition-all backdrop-blur-xl"
+             >
+                <RefreshCw className={cn("w-6 h-6", isLoading && "animate-spin")} />
+             </button>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* 2. MAIN ANALYTICS GRID */}
+      <div className="max-w-[1600px] mx-auto px-4 md:px-8 -mt-20 relative z-20">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+          
+          {/* Main Content (3/4 on XL) */}
+          <div className="xl:col-span-3 space-y-8">
+            
+            {/* Stats Row */}
+            <motion.div 
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+            >
+              {stats.map((stat, idx) => (
+                <DashboardStatCard key={idx} {...stat} />
               ))}
+            </motion.div>
+
+            {/* Pulse & AI Hub Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+               <div className="lg:col-span-1">
+                  <PortfolioPulse />
+               </div>
+               <div className="lg:col-span-2">
+                  <AIInsightHub />
+               </div>
+            </div>
+
+            {/* Large Charts Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+               {/* Premium Revenue Matrix */}
+               <motion.div 
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 className="glass-zap p-1"
+               >
+                 <div className="bg-white rounded-[2.5rem] p-8 h-full">
+                   <div className="flex items-center justify-between mb-10">
+                      <div>
+                        <h3 className="text-2xl font-black text-slate-900 tracking-tighter">Financial Velocity</h3>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">MONTHLY GROWTH INDEX ($)</p>
+                      </div>
+                      <div className="flex gap-2">
+                         <span className="bg-emerald-50 text-emerald-600 text-[10px] font-black px-3 py-1.5 rounded-xl border border-emerald-100">+14.2%</span>
+                         <button className="p-2 hover:bg-slate-50 rounded-xl transition-all"><ArrowRight className="w-5 h-5 text-slate-400" /></button>
+                      </div>
+                   </div>
+                   
+                   <div className="h-80 w-full ml-[-20px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={incomeTrend}>
+                          <defs>
+                            <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.2}/>
+                              <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                          <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fontSize: 10, fontWeight: 900, fill: '#cbd5e1'}} dy={15} />
+                          <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fontWeight: 900, fill: '#cbd5e1'}} />
+                          <Tooltip 
+                            contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.15)', fontWeight: 'bold', padding: '16px' }}
+                          />
+                          <Area type="monotone" dataKey="amount" stroke="#8b5cf6" strokeWidth={5} fillOpacity={1} fill="url(#colorRevenue)" />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                   </div>
+                 </div>
+               </motion.div>
+
+               {/* Performance Score Gauge */}
+               <motion.div 
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ delay: 0.1 }}
+                 className="glass-zap p-1"
+               >
+                 <div className="bg-slate-900 rounded-[2.5rem] p-10 h-full flex flex-col items-center justify-center text-center relative overflow-hidden group">
+                   <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px] rounded-full group-hover:scale-110 transition-transform duration-1000" />
+                   
+                   <div className="text-left w-full mb-10 relative z-10">
+                      <h3 className="text-2xl font-black text-white tracking-tighter">Aggregate Yield</h3>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">Portfolio Efficiency Index</p>
+                   </div>
+
+                   <div className="relative w-64 h-64 flex items-center justify-center z-10">
+                     <svg className="w-full h-full transform -rotate-90">
+                       <circle cx="128" cy="128" r="110" stroke="#1e293b" strokeWidth="20" fill="transparent" />
+                       <motion.circle
+                         cx="128" cy="128" r="110" stroke="hsl(172, 77%, 40%)" strokeWidth="20" fill="transparent"
+                         strokeDasharray={691}
+                         initial={{ strokeDashoffset: 691 }}
+                         animate={{ strokeDashoffset: 691 * (1 - 0.88) }}
+                         transition={{ duration: 2, ease: "easeOut" }}
+                         strokeLinecap="round"
+                         className="drop-shadow-[0_0_15px_rgba(15,118,110,0.8)]"
+                       />
+                     </svg>
+                     <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-6xl font-black text-white tracking-tighter">88<span className="text-2xl opacity-40 ml-1">%</span></span>
+                        <div className="mt-4 px-4 py-1.5 bg-emerald-500/20 text-emerald-400 rounded-full text-[10px] font-black tracking-widest border border-emerald-500/20">
+                           ELITE PERFORMANCE
+                        </div>
+                     </div>
+                   </div>
+
+                   <div className="mt-12 grid grid-cols-2 gap-6 w-full relative z-10">
+                      <div className="p-4 bg-white/5 rounded-3xl border border-white/5 hover:bg-white/10 transition-all">
+                         <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Cap Rate</p>
+                         <p className="text-xl font-black text-white">12.4%</p>
+                      </div>
+                      <div className="p-4 bg-white/5 rounded-3xl border border-white/5 hover:bg-white/10 transition-all">
+                         <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Risk Factor</p>
+                         <p className="text-xl font-black text-rose-400">LOW</p>
+                      </div>
+                   </div>
+                 </div>
+               </motion.div>
             </div>
           </div>
-        </div>
 
-        {/* Right Sidebar (1/4 on XL) */}
-        <div className="xl:sticky xl:top-24 space-y-8">
-           <RecentActivity />
-           
-           {/* Quick Stats Helper */}
-           <div className="glass-card p-6 bg-gradient-to-br from-primary to-primary-dark text-white border-none shadow-2xl shadow-primary/20">
-              <h4 className="font-bold mb-4 flex items-center gap-2">
-                <Zap className="w-4 h-4 text-secondary fill-current" />
-                Quick Insights
-              </h4>
-              <ul className="space-y-4">
-                <li className="flex gap-3">
-                   <div className="w-1.5 h-1.5 rounded-full bg-secondary mt-1.5 shrink-0" />
-                   <p className="text-[11px] font-medium leading-relaxed opacity-90">
-                     Occupancy in <span className="font-bold underline">Hodan</span> has increased by 5% this week.
-                   </p>
-                </li>
-                <li className="flex gap-3">
-                   <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
-                   <p className="text-[11px] font-medium leading-relaxed opacity-90">
-                     <span className="font-bold">4 payments</span> are pending verification since yesterday.
-                   </p>
-                </li>
-              </ul>
-              <button className="w-full mt-6 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
-                Optimize Strategy
-              </button>
-           </div>
+          {/* Right Sidebar (1/4 on XL) */}
+          <div className="xl:col-span-1 space-y-8">
+             <RecentActivity />
+             
+             {/* Dynamic Insights Module */}
+             <motion.div 
+               initial={{ opacity: 0, x: 20 }}
+               animate={{ opacity: 1, x: 0 }}
+               className="glass-zap p-1"
+             >
+               <div className="bg-gradient-to-br from-primary to-primary-dark rounded-[2.2rem] p-8 text-white relative overflow-hidden group shadow-2xl shadow-primary/30">
+                  <div className="absolute top-[-20%] right-[-20%] w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000" />
+                  
+                  <div className="flex items-center gap-4 mb-8">
+                     <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-md">
+                        <Zap className="w-6 h-6 text-white fill-current animate-pulse" />
+                     </div>
+                     <h4 className="text-lg font-black tracking-tighter">Intelligence Hub</h4>
+                  </div>
+                  
+                  <ul className="space-y-6">
+                    {[
+                      { msg: 'Hodan occupancy trending up (+8.2%)', color: 'bg-emerald-400' },
+                      { msg: 'Payment cycle efficiency improved', color: 'bg-blue-300' },
+                      { msg: 'Maintenance costs below average', color: 'bg-indigo-300' }
+                    ].map((item, i) => (
+                      <li key={i} className="flex gap-4 group/li">
+                         <div className={cn("w-1.5 h-1.5 rounded-full mt-2 shrink-0 shadow-[0_0_8px_white]", item.color)} />
+                         <p className="text-xs font-bold leading-relaxed opacity-80 group-hover/li:opacity-100 transition-opacity">
+                           {item.msg}
+                         </p>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <button className="w-full mt-10 py-4 bg-white/10 hover:bg-white/20 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all border border-white/10 active:scale-95 shadow-lg">
+                    Launch Strategy Matrix
+                  </button>
+               </div>
+             </motion.div>
+          </div>
         </div>
       </div>
 
       {/* MODALS */}
-      <PropertyModal 
-        isOpen={activeModal === 'property'} 
-        onClose={() => setActiveModal(null)} 
-      />
-      <TenantModal 
-        isOpen={activeModal === 'tenant'} 
-        onClose={() => setActiveModal(null)} 
-      />
-      <PaymentModal 
-        isOpen={activeModal === 'payment'} 
-        onClose={() => setActiveModal(null)} 
-      />
-
+      <AnimatePresence>
+        {activeModal === 'property' && (
+          <PropertyModal 
+            isOpen={true} 
+            onClose={() => setActiveModal(null)} 
+          />
+        )}
+        {activeModal === 'tenant' && (
+          <TenantModal 
+            isOpen={true} 
+            onClose={() => setActiveModal(null)} 
+          />
+        )}
+        {activeModal === 'payment' && (
+          <PaymentModal 
+            isOpen={true} 
+            onClose={() => setActiveModal(null)} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

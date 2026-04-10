@@ -51,65 +51,81 @@ const AIInsightHub = () => {
   ];
 
   return (
-    <div className="glass-card p-6 relative overflow-hidden group">
-      {/* Background Decor */}
-      <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors duration-700" />
-      <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-secondary/5 rounded-full blur-3xl group-hover:bg-secondary/10 transition-colors duration-700" />
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="glass-zap p-1 relative overflow-hidden group"
+    >
+      <div className="bg-white/80 backdrop-blur-3xl rounded-[2.5rem] p-8 relative overflow-hidden">
+        {/* Holographic Overlays */}
+        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-primary/5 rounded-full blur-[100px] group-hover:bg-primary/10 transition-all duration-1000" />
+        <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-80 h-80 bg-secondary/5 rounded-full blur-[100px] group-hover:bg-secondary/10 transition-all duration-1000" />
 
-      <div className="relative z-10">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
-              <Sparkles className="w-6 h-6 text-white animate-pulse" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-slate-900">
-                {language === 'so' ? 'Malaika AI Advisor' : 'Malaika Advisor'}
-              </h3>
-              <p className="text-xs font-bold text-primary uppercase tracking-widest flex items-center gap-1">
-                <Zap className="w-3 h-3 fill-primary" />
-                Premium Intelligence
-              </p>
-            </div>
-          </div>
-          <button className="p-2 hover:bg-slate-100 rounded-xl text-slate-400 transition-colors">
-            <ArrowRight className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {insights.map((insight, idx) => (
-            <motion.div 
-              key={idx}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: idx * 0.1 }}
-              className="p-5 rounded-3xl bg-white/50 border border-white/60 shadow-sm hover:shadow-md transition-all hover:-translate-y-1"
-            >
-              <div className={`w-10 h-10 ${insight.bg} ${insight.color} rounded-xl flex items-center justify-center mb-4`}>
-                <insight.icon className="w-5 h-5" />
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-10">
+            <div className="flex items-center gap-5">
+              <div className="w-16 h-16 bg-slate-900 rounded-[1.8rem] flex items-center justify-center shadow-2xl relative overflow-hidden group-hover:rotate-3 transition-transform">
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <Sparkles className="w-8 h-8 text-white animate-pulse relative z-10" />
               </div>
-              <h4 className="font-bold text-slate-900 mb-2">{insight.title}</h4>
-              <p className="text-sm text-slate-500 font-medium leading-relaxed">
-                {insight.message}
-              </p>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="mt-8 p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-2 h-2 bg-primary rounded-full animate-ping" />
-            <p className="text-xs font-bold text-primary uppercase tracking-widest">
-              AI Analysis active: 100% Data coverage
-            </p>
+              <div>
+                <h3 className="text-2xl font-black text-slate-900 tracking-tighter">
+                  {language === 'so' ? 'Malaika AI Advisor' : 'Malaika Intelligence'}
+                </h3>
+                <div className="flex items-center gap-2 mt-1">
+                   <div className="flex gap-0.5">
+                      {[1,2,3].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-primary/20 animate-pulse" style={{ animationDelay: `${i*0.2}s` }} />)}
+                   </div>
+                   <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em]">Live Portfolio Analysis</p>
+                </div>
+              </div>
+            </div>
+            <button className="p-4 hover:bg-slate-100 rounded-full text-slate-400 transition-all active:scale-75">
+              <ArrowRight className="w-6 h-6" />
+            </button>
           </div>
-          <button className="text-[10px] font-bold text-slate-400 hover:text-primary transition-colors uppercase tracking-widest underline underline-offset-4">
-            Recalculate Insights
-          </button>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {insights.map((insight, idx) => (
+              <motion.div 
+                key={idx}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 + (idx * 0.1) }}
+                className="p-6 rounded-[2rem] bg-slate-50/50 border border-slate-100 hover:border-primary/20 hover:bg-white hover:shadow-xl transition-all group/item"
+              >
+                <div className={cn(
+                   "w-12 h-12 rounded-2xl flex items-center justify-center mb-5 transition-all group-hover/item:scale-110 group-hover/item:-rotate-3 shadow-sm",
+                   insight.bg, insight.color
+                )}>
+                  <insight.icon className="w-6 h-6" />
+                </div>
+                <h4 className="font-black text-slate-900 mb-2 tracking-tight text-lg">{insight.title}</h4>
+                <p className="text-sm text-slate-500 font-medium leading-relaxed opacity-80">
+                  {insight.message}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="mt-10 p-6 bg-slate-900 rounded-[2rem] flex items-center justify-between border border-white/5 shadow-2xl">
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                 <div className="w-3 h-3 bg-primary rounded-full animate-ping absolute inset-0" />
+                 <div className="w-3 h-3 bg-primary rounded-full relative" />
+              </div>
+              <div>
+                <p className="text-[11px] font-black text-white uppercase tracking-[0.2em]">Active Coverage</p>
+                <p className="text-[10px] text-slate-400 font-bold">Comprehensive data synchronization successful</p>
+              </div>
+            </div>
+            <button className="px-6 py-3 bg-white/5 hover:bg-white/10 text-[10px] font-black text-white uppercase tracking-widest rounded-xl transition-all border border-white/5">
+              Recalculate Insights
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
