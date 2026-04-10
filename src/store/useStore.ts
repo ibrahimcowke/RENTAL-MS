@@ -15,15 +15,17 @@ interface Property {
   district: string;
   district_id?: string;
   address: string;
-  property_type: 'Complex' | 'Building' | 'House' | 'Apartment' | 'Villa' | 'Room' | 'Shop';
+  property_type: 'Apartment' | 'Villa' | 'Normal House';
+  building_number?: number; // Apartment only: 1, 2, 3, 5
   rent_amount: number;
   currency: 'USD' | 'SOS';
   status: 'available' | 'occupied' | 'maintenance';
   images: string[];
   video_url?: string;
-  bedrooms: number;
-  bathrooms: number;
-  kitchens: number;
+  bedrooms: number;   // Apartment sections only
+  bathrooms: number;  // Apartment sections only
+  kitchens: number;   // Apartment sections only
+  floor_area?: number; // Villa / Normal House sections
   parent_id?: string;
   description?: string;
 }
@@ -173,6 +175,8 @@ export const useStore = create<AppState>()(
             bedrooms: p.bedrooms || 0,
             bathrooms: p.bathrooms || 0,
             kitchens: p.kitchens || 0,
+            floor_area: p.floor_area || null,
+            building_number: p.building_number || null,
             parent_id: p.parent_id || null
           }));
 
