@@ -231,6 +231,35 @@
     box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(var(--secondary), 0.2);
   }
 
+  /* ──────────────────────────────────────────────────────────
+     HYPER-MODERN COMMAND CENTER TOKENS
+     ────────────────────────────────────────────────────────── */
+  .hyper-glass {
+    @apply backdrop-blur-[40px] border shadow-2xl transition-all duration-700;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .neon-glow-primary {
+    box-shadow: 0 0 40px -10px hsl(var(--p-h) var(--p-s) var(--p-l) / 0.5);
+  }
+
+  .neon-glow-emerald {
+    box-shadow: 0 0 40px -10px rgb(16 185 129 / 0.4);
+  }
+
+  .neon-glow-rose {
+    box-shadow: 0 0 40px -10px rgb(244 63 94 / 0.4);
+  }
+
+  .neon-glow-amber {
+    box-shadow: 0 0 40px -10px rgb(245 158 11 / 0.4);
+  }
+
+  .command-center-bg {
+    background: radial-gradient(circle at 0% 0%, #0f172a 0%, #020617 100%);
+  }
+
   .btn-primary {
     @apply text-white font-bold px-5 py-2.5 rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg;
     background: hsl(var(--p-h, 172) var(--p-s, 77%) var(--p-l, 26%));
