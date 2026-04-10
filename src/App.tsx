@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect } from 'react';
 import Sidebar from './components/layout/Sidebar';
 import TopBar from './components/layout/TopBar';
 import MobileNav from './components/layout/MobileNav';
@@ -26,8 +27,13 @@ const PageWrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 function AppContent() {
-  const { user } = useStore();
+  const { user, theme } = useStore();
   const location = useLocation();
+
+  // Apply persisted theme on boot
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme || 'ocean');
+  }, [theme]);
 
   // Simple Mock Auth Wrapper
   if (!user && false) { // Set to true to force login

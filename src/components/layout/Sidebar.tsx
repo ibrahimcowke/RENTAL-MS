@@ -24,14 +24,14 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-white border-r border-slate-200 h-screen sticky top-0">
+    <aside className="hidden md:flex flex-col w-64 themed-sidebar border-r border-slate-200/10 h-screen sticky top-0 shadow-2xl">
       <div className="p-6 flex items-center gap-3">
-        <div className="bg-primary/10 p-2 rounded-xl">
-          <Building2 className="w-6 h-6 text-primary" />
+        <div className="bg-white/10 p-2 rounded-xl">
+          <Building2 className="w-6 h-6 themed-sidebar-accent" />
         </div>
         <div>
-          <h1 className="text-lg font-bold text-slate-900 leading-tight">Mogadishu</h1>
-          <p className="text-xs text-slate-500 font-medium tracking-wide border-t border-slate-100 pt-0.5 mt-0.5">RENTAL MGMT</p>
+          <h1 className="text-lg font-bold text-white leading-tight">Mogadishu</h1>
+          <p className="text-[10px] text-white/50 font-bold tracking-[0.2em] pt-0.5 mt-0.5 uppercase">Rental Mgmt</p>
         </div>
       </div>
 
@@ -43,8 +43,8 @@ const Sidebar = () => {
             className={({ isActive }) => `
               flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group
               ${isActive 
-                ? 'bg-primary text-white shadow-lg shadow-primary/20' 
-                : 'text-slate-600 hover:bg-slate-50 hover:text-primary'}
+                ? 'bg-primary text-white shadow-xl shadow-primary/30 scale-[1.05]' 
+                : 'text-white/60 hover:bg-white/5 hover:text-white'}
             `}
           >
             <item.icon className={`w-5 h-5 transition-transform duration-200 group-hover:scale-110`} />
@@ -53,8 +53,8 @@ const Sidebar = () => {
         ))}
       </nav>
 
-      <div className="p-4 border-t border-slate-100">
-        <button className="flex items-center gap-3 px-4 py-3 w-full text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all font-medium">
+      <div className="p-4 border-t border-white/5">
+        <button className="flex items-center gap-3 px-4 py-3 w-full text-white/50 hover:text-white hover:bg-red-500/20 rounded-xl transition-all font-bold text-sm">
           <LogOut className="w-5 h-5" />
           <span>{language === 'so' ? 'Ka bax' : 'Logout'}</span>
         </button>

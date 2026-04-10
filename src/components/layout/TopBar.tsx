@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import NotificationCenter from './NotificationCenter';
+import ThemeSelector from './ThemeSelector';
 
 const TopBar = () => {
   const { language, setLanguage, currency, setCurrency } = useStore();
@@ -45,6 +46,7 @@ const TopBar = () => {
 
         <div className="h-6 w-px bg-slate-200 mx-1 hidden sm:block" />
 
+        <ThemeSelector />
         <NotificationCenter />
 
         <button className="flex items-center gap-2 p-1 pl-1 md:pl-3 hover:bg-slate-100 rounded-xl transition-colors border border-transparent hover:border-slate-100">

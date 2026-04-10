@@ -9,6 +9,8 @@ interface UserProfile {
   role: 'admin' | 'landlord' | 'manager';
 }
 
+export type AppTheme = 'ocean' | 'midnight' | 'rose' | 'desert' | 'arctic' | 'forest' | 'slate';
+
 interface Property {
   id: string;
   name: string;
@@ -72,6 +74,7 @@ interface AppState {
   currency: 'USD' | 'SOS';
   isDarkMode: boolean;
   isLoading: boolean;
+  theme: AppTheme;
   
   // Data
   properties: Property[];
@@ -84,6 +87,7 @@ interface AppState {
   setUser: (user: UserProfile | null) => void;
   setLanguage: (lang: 'so' | 'en') => void;
   setCurrency: (cur: 'USD' | 'SOS') => void;
+  setTheme: (theme: AppTheme) => void;
   toggleDarkMode: () => void;
   fetchData: () => Promise<void>;
   
@@ -118,6 +122,7 @@ export const useStore = create<AppState>()(
       currency: 'USD',
       isDarkMode: false,
       isLoading: false,
+      theme: 'ocean' as AppTheme,
       
       properties: [],
       tenants: [],
@@ -128,6 +133,12 @@ export const useStore = create<AppState>()(
       setUser: (user) => set({ user }),
       setLanguage: (language) => set({ language }),
       setCurrency: (currency) => set({ currency }),
+      setTheme: (theme) => {
+        set({ theme });
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.classList.add('theme-transition');
+        setTimeout(() => document.documentElement.classList.remove('theme-transition'), 400);
+      },
       toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
 
       addNotification: (n) => set((state) => ({

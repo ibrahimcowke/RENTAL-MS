@@ -2,19 +2,187 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   THEME SYSTEM - CSS CUSTOM PROPERTIES
+   ============================================================ */
+@layer base {
+  /* ── DEFAULT: Ocean Teal (Original) ── */
+  :root,
+  [data-theme="ocean"] {
+    --p-h: 172; --p-s: 77%; --p-l: 26%;
+    --p-dark-h: 172; --p-dark-s: 77%; --p-dark-l: 20%;
+    --s-h: 38; --s-s: 90%; --s-l: 50%;
+    --bg: 248, 250, 252;
+    --card: 255 255 255 / 0.70;
+    --mesh-1: rgba(15, 118, 110, 0.04);
+    --mesh-2: rgba(245, 158, 11, 0.02);
+    --body-bg: 248 250 252;
+    --sidebar-bg: 15 23 42;       /* slate-900 */
+    --sidebar-acc: 20 184 166;    /* teal-500 */
+    --text-main: 15 23 42;
+    --text-muted: 100 116 139;
+    --border-col: 226 232 240;
+    --input-bg: 248 250 252;
+  }
+
+  /* ── MIDNIGHT: Dark Ultra Pro ── */
+  [data-theme="midnight"] {
+    --p-h: 258; --p-s: 90%; --p-l: 60%;
+    --p-dark-h: 258; --p-dark-s: 85%; --p-dark-l: 50%;
+    --s-h: 162; --s-s: 72%; --s-l: 45%;
+    --bg: 9, 9, 11;
+    --card: 24 24 27 / 0.80;
+    --mesh-1: rgba(139, 92, 246, 0.06);
+    --mesh-2: rgba(52, 211, 153, 0.03);
+    --body-bg: 9 9 11;
+    --sidebar-bg: 0 0 0;
+    --sidebar-acc: 139 92 246;    /* violet-500 */
+    --text-main: 248 250 252;
+    --text-muted: 148 163 184;
+    --border-col: 39 39 42;
+    --input-bg: 24 24 27;
+  }
+
+  /* ── ROSE GOLD: Luxury Pink ── */
+  [data-theme="rose"] {
+    --p-h: 336; --p-s: 80%; --p-l: 47%;
+    --p-dark-h: 336; --p-dark-s: 78%; --p-dark-l: 38%;
+    --s-h: 27; --s-s: 96%; --s-l: 54%;
+    --bg: 254, 242, 242;
+    --card: 255 255 255 / 0.75;
+    --mesh-1: rgba(225, 29, 72, 0.04);
+    --mesh-2: rgba(251, 113, 133, 0.03);
+    --body-bg: 254 242 242;
+    --sidebar-bg: 76 5 25;        /* rose-950 */
+    --sidebar-acc: 244 63 94;     /* rose-500 */
+    --text-main: 15 23 42;
+    --text-muted: 113 63 80;
+    --border-col: 252 205 211;
+    --input-bg: 255 241 242;
+  }
+
+  /* ── DESERT: Warm Sand ── */
+  [data-theme="desert"] {
+    --p-h: 26; --p-s: 85%; --p-l: 40%;
+    --p-dark-h: 26; --p-dark-s: 80%; --p-dark-l: 30%;
+    --s-h: 45; --s-s: 96%; --s-l: 52%;
+    --bg: 254, 249, 235;
+    --card: 255 255 255 / 0.72;
+    --mesh-1: rgba(180, 83, 9, 0.04);
+    --mesh-2: rgba(245, 158, 11, 0.03);
+    --body-bg: 254 249 235;
+    --sidebar-bg: 67 30 5;        /* warm brown */
+    --sidebar-acc: 234 88 12;     /* orange-600 */
+    --text-main: 28 25 23;
+    --text-muted: 120 83 52;
+    --border-col: 253 224 179;
+    --input-bg: 255 251 235;
+  }
+
+  /* ── ARCTIC: Ice Blue & Cold White ── */
+  [data-theme="arctic"] {
+    --p-h: 213; --p-s: 94%; --p-l: 40%;
+    --p-dark-h: 213; --p-dark-s: 90%; --p-dark-l: 30%;
+    --s-h: 196; --s-s: 80%; --s-l: 44%;
+    --bg: 239, 246, 255;
+    --card: 255 255 255 / 0.75;
+    --mesh-1: rgba(29, 78, 216, 0.04);
+    --mesh-2: rgba(6, 182, 212, 0.03);
+    --body-bg: 239 246 255;
+    --sidebar-bg: 15 23 42;
+    --sidebar-acc: 59 130 246;    /* blue-500 */
+    --text-main: 15 23 42;
+    --text-muted: 71 85 105;
+    --border-col: 191 219 254;
+    --input-bg: 239 246 255;
+  }
+
+  /* ── FOREST: Deep Green Nature ── */
+  [data-theme="forest"] {
+    --p-h: 142; --p-s: 72%; --p-l: 29%;
+    --p-dark-h: 142; --p-dark-s: 68%; --p-dark-l: 22%;
+    --s-h: 84; --s-s: 66%; --s-l: 44%;
+    --bg: 240, 253, 244;
+    --card: 255 255 255 / 0.72;
+    --mesh-1: rgba(22, 101, 52, 0.05);
+    --mesh-2: rgba(132, 204, 22, 0.03);
+    --body-bg: 240 253 244;
+    --sidebar-bg: 5 46 22;        /* green-950 */
+    --sidebar-acc: 34 197 94;     /* green-500 */
+    --text-main: 15 23 42;
+    --text-muted: 52 78 57;
+    --border-col: 187 247 208;
+    --input-bg: 240 253 244;
+  }
+
+  /* ── SLATE: Corporate Clean ── */
+  [data-theme="slate"] {
+    --p-h: 224; --p-s: 64%; --p-l: 33%;
+    --p-dark-h: 224; --p-dark-s: 60%; --p-dark-l: 24%;
+    --s-h: 215; --s-s: 80%; --s-l: 50%;
+    --bg: 248, 250, 252;
+    --card: 255 255 255 / 0.75;
+    --mesh-1: rgba(51, 65, 85, 0.04);
+    --mesh-2: rgba(59, 130, 246, 0.02);
+    --body-bg: 248 250 252;
+    --sidebar-bg: 30 41 59;       /* slate-800 */
+    --sidebar-acc: 99 102 241;    /* indigo-500 */
+    --text-main: 15 23 42;
+    --text-muted: 100 116 139;
+    --border-col: 226 232 240;
+    --input-bg: 248 250 252;
+  }
+
+  /* ── Midnight: Apply dark backgrounds system-wide ── */
+  [data-theme="midnight"] body {
+    color: rgb(var(--text-main));
+  }
+  [data-theme="midnight"] .glass-card {
+    background: rgba(var(--card)) !important;
+    border-color: rgb(var(--border-col)) !important;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.4) !important;
+    color: rgb(var(--text-main));
+  }
+  [data-theme="midnight"] input,
+  [data-theme="midnight"] select,
+  [data-theme="midnight"] textarea {
+    background-color: rgb(var(--input-bg)) !important;
+    border-color: rgb(var(--border-col)) !important;
+    color: rgb(var(--text-main)) !important;
+  }
+  [data-theme="midnight"] header {
+    background: rgba(9,9,11,0.85) !important;
+    border-color: rgb(var(--border-col)) !important;
+  }
+  [data-theme="midnight"] h1,
+  [data-theme="midnight"] h2,
+  [data-theme="midnight"] h3,
+  [data-theme="midnight"] p,
+  [data-theme="midnight"] span,
+  [data-theme="midnight"] td,
+  [data-theme="midnight"] th {
+    color: inherit;
+  }
+}
+
 @layer base {
   :root {
+    /* Legacy vars used by Tailwind config */
     --primary: 15, 118, 110;
     --primary-dark: 13, 92, 86;
     --secondary: 245, 158, 11;
     --background: 248, 250, 252;
   }
 
+  /* Global body base */
   body {
-    @apply bg-slate-50 text-slate-900 antialiased overflow-x-hidden;
+    background-color: rgb(var(--body-bg, 248 250 252));
+    color: rgb(var(--text-main, 15 23 42));
+    @apply antialiased overflow-x-hidden;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     position: relative;
     min-height: 100vh;
+    transition: background-color 0.4s ease, color 0.3s ease;
   }
 
   /* Animated Mesh Background */
@@ -25,12 +193,13 @@
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle at center, rgba(15, 118, 110, 0.03) 0%, transparent 50%),
-                radial-gradient(circle at 20% 30%, rgba(245, 158, 11, 0.02) 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, rgba(15, 118, 110, 0.02) 0%, transparent 40%);
+    background: radial-gradient(circle at center, var(--mesh-1, rgba(15,118,110,0.03)) 0%, transparent 50%),
+                radial-gradient(circle at 20% 30%, var(--mesh-2, rgba(245,158,11,0.02)) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, var(--mesh-1, rgba(15,118,110,0.02)) 0%, transparent 40%);
     animation: mesh-rotate 60s linear infinite;
     z-index: -1;
     pointer-events: none;
+    transition: background 0.5s ease;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -40,42 +209,65 @@
 
 @layer components {
   .glass-card {
-    @apply bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl shadow-slate-200/50 rounded-3xl transition-all duration-300;
+    @apply backdrop-blur-xl border shadow-xl rounded-3xl transition-all duration-300;
+    background: rgba(var(--card, 255 255 255 / 0.70));
+    border-color: rgba(var(--border-col, 226 232 240) / 0.6);
   }
 
   .glass-card:hover {
-    @apply shadow-2xl shadow-primary/5 border-white/60;
+    @apply shadow-2xl;
   }
 
   .btn-primary {
-    @apply bg-primary hover:bg-primary-dark text-white font-bold px-5 py-2.5 rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:shadow-primary/30;
+    @apply text-white font-bold px-5 py-2.5 rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg;
+    background: hsl(var(--p-h, 172) var(--p-s, 77%) var(--p-l, 26%));
+  }
+  .btn-primary:hover {
+    background: hsl(var(--p-dark-h, 172) var(--p-dark-s, 77%) var(--p-dark-l, 20%));
   }
 
   .btn-secondary {
-    @apply bg-secondary hover:bg-secondary-dark text-white font-bold px-5 py-2.5 rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-secondary/20 hover:shadow-secondary/30;
+    @apply text-white font-bold px-5 py-2.5 rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg;
+    background: hsl(var(--s-h, 38) var(--s-s, 90%) var(--s-l, 50%));
   }
 
   .input-field {
-    @apply w-full bg-white/80 backdrop-blur-sm border border-slate-200 rounded-2xl px-4 py-3 focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all shadow-sm;
+    @apply w-full backdrop-blur-sm border rounded-2xl px-4 py-3 outline-none transition-all shadow-sm;
+    background-color: rgb(var(--input-bg, 248 250 252));
+    border-color: rgb(var(--border-col, 226 232 240));
+    color: rgb(var(--text-main, 15 23 42));
+  }
+  .input-field:focus {
+    border-color: hsl(var(--p-h) var(--p-s) var(--p-l));
+    box-shadow: 0 0 0 4px hsl(var(--p-h) var(--p-s) var(--p-l) / 0.1);
   }
 
   .label-text {
-    @apply block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1;
+    @apply block text-xs font-bold uppercase tracking-widest mb-2 ml-1;
+    color: rgb(var(--text-muted, 100 116 139));
+  }
+
+  /* Sidebar theming */
+  .themed-sidebar {
+    background-color: rgb(var(--sidebar-bg, 15 23 42));
+    transition: background-color 0.4s ease;
+  }
+  .themed-sidebar-accent {
+    color: rgb(var(--sidebar-acc, 20 184 166));
   }
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
-
 ::-webkit-scrollbar-track {
-  @apply bg-transparent;
+  background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-200/50 rounded-full hover:bg-slate-300/80 backdrop-blur-sm transition-colors;
+  background: rgba(var(--border-col, 226 232 240) / 0.8);
+  border-radius: 9999px;
 }
 
 /* Animations */
@@ -89,6 +281,15 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes theme-fade {
+  from { opacity: 0.7; }
+  to { opacity: 1; }
+}
+
 .animate-slide-up {
   animation: slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.theme-transition * {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.2s ease !important;
 }
