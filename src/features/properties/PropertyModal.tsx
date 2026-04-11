@@ -1,4 +1,4 @@
-import { X, Building2, MapPin, DollarSign, Home, Image, Plus, Trash2, ChevronRight, ArrowLeft, Layers } from 'lucide-react';
+import { X, Building2, MapPin, DollarSign, Home, Plus, Trash2, ChevronRight, ArrowLeft, Layers, Info } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../utils/cn';
@@ -23,8 +23,6 @@ const PROPERTY_TYPES = [
     activeBg: 'bg-blue-600',
     description: 'Multi-unit building with sections. Has beds, toilet & kitchen.',
     descSo: 'Dhismo leh qaybaha. Waxaa kujira sariir, musqul & jiko.',
-    hasAmenities: true,
-    hasBuildings: true,
   },
   {
     id: 'Villa',
@@ -37,8 +35,6 @@ const PROPERTY_TYPES = [
     activeBg: 'bg-emerald-600',
     description: 'Premium standalone villa with distinct sections & floor area.',
     descSo: 'Xero weyn oo leh qaybaha iyo masaafada dab.',
-    hasAmenities: false,
-    hasBuildings: false,
   },
   {
     id: 'Normal House',
@@ -51,8 +47,6 @@ const PROPERTY_TYPES = [
     activeBg: 'bg-amber-600',
     description: 'Standard residential house with sections. No amenity breakdown.',
     descSo: 'Guri caadi ah oo leh qaybaha. Aama kuguma jiraan.',
-    hasAmenities: false,
-    hasBuildings: false,
   },
 ] as const;
 
@@ -60,7 +54,7 @@ const PROPERTY_TYPES = [
 const PropertyModal = ({ isOpen, onClose, property }: PropertyModalProps) => {
   const { language, addProperty, updateProperty } = useStore();
   const [districts, setDistricts] = useState<any[]>([]);
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(property ? 2 : 1);
+  const [step, setStep] = useState<1 | 2>(1);
   const [formData, setFormData] = useState({
     name: '',
     district_id: '',
@@ -79,19 +73,15 @@ const PropertyModal = ({ isOpen, onClose, property }: PropertyModalProps) => {
     description: ''
   });
 
-  const PHASES = [
-    { id: 1, label: 'Asset DNA', color: 'indigo', icon: Layers, gradient: 'from-indigo-600/20 to-transparent', glow: 'neon-glow-primary' },
-    { id: 2, label: 'Identity', color: 'blue', icon: Building2, gradient: 'from-blue-600/20 to-transparent', glow: 'neon-glow-primary' },
-    { id: 3, label: 'Economics', color: 'emerald', icon: DollarSign, gradient: 'from-emerald-600/20 to-transparent', glow: 'neon-glow-emerald' },
-    { id: 4, label: 'Visuals', color: 'amber', icon: Image, gradient: 'from-amber-600/20 to-transparent', glow: 'neon-glow-amber' },
+  const STEPS = [
+    { id: 1, label: language === 'so' ? 'Faahfaahinta' : 'Basic Details', icon: Info, color: 'blue' },
+    { id: 2, label: language === 'so' ? 'Lacagta & Sawirada' : 'Finance & Photos', icon: DollarSign, color: 'emerald' },
   ];
-
-  const activePhase = PHASES.find(p => p.id === step)!;
 
   useEffect(() => {
     fetchDistricts();
     if (property) {
-      setStep(2);
+      setStep(1);
       setFormData({
         name: property.name || '',
         district_id: property.district_id || '',
@@ -128,7 +118,6 @@ const PropertyModal = ({ isOpen, onClose, property }: PropertyModalProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Clear amenity fields for non-apartment types
       const payload = { ...formData, currency: 'USD' };
       if (formData.property_type !== 'Apartment') {
         payload.bedrooms = 0;
@@ -156,261 +145,300 @@ const PropertyModal = ({ isOpen, onClose, property }: PropertyModalProps) => {
             initial={{ opacity: 0, x: 100, scale: 0.95 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 100, scale: 0.95 }}
-            className="bg-slate-900 w-full max-w-6xl h-full md:h-[90vh] shadow-[0_0_100px_rgba(0,0,0,0.5)] relative overflow-hidden flex flex-col md:rounded-[4rem] border border-white/10"
+            className="bg-white w-full max-w-5xl h-full md:h-[90vh] shadow-[0_0_100px_rgba(0,0,0,0.2)] relative overflow-hidden flex flex-col md:rounded-[3rem] border border-slate-200"
           >
-            {/* 🌈 HYPER-RAINBOW BACKGROUND */}
-            <div className={cn(
-              "absolute inset-0 bg-gradient-to-br opacity-20 transition-all duration-1000",
-              activePhase.gradient
-            )} />
-            
             <div className="flex flex-1 overflow-hidden relative z-10">
               
-              {/* PHASE TRACKER SIDEBAR */}
-              <div className="hidden lg:flex w-80 flex-col bg-black/20 backdrop-blur-3xl border-r border-white/5 p-12">
-                 <div className="mb-16">
-                    <div className="w-16 h-16 rounded-[2rem] bg-emerald-500 neon-glow-emerald flex items-center justify-center mb-6">
-                      <Plus className="w-8 h-8 text-white" />
+              {/* STEP TRACKER SIDEBAR */}
+              <div className="hidden lg:flex w-72 flex-col bg-slate-50 border-r border-slate-200 p-10">
+                 <div className="mb-12">
+                    <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mb-6 shadow-lg shadow-primary/20">
+                      <Building2 className="w-7 h-7 text-white" />
                     </div>
-                    <h2 className="text-3xl font-black text-white tracking-tighter leading-none">
-                      Asset<br/>Deployment
+                    <h2 className="text-2xl font-black text-slate-900 tracking-tighter leading-none">
+                      {property ? 'Edit' : 'Add'}<br/>Property
                     </h2>
                  </div>
 
-                 <div className="space-y-12">
-                    {PHASES.map((phase) => (
-                      <div key={phase.id} className="relative">
+                 <div className="space-y-8">
+                    {STEPS.map((s) => (
+                      <div key={s.id} className="relative">
                          <div className={cn(
-                           "flex items-center gap-6 transition-all duration-500",
-                           step === phase.id ? "opacity-100 translate-x-3" : "opacity-40"
+                           "flex items-center gap-4 transition-all duration-300",
+                           step === s.id ? "opacity-100 translate-x-2" : "opacity-40"
                          )}>
                             <div className={cn(
-                              "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
-                              step === phase.id ? phase.glow + " bg-" + phase.color + "-600" : "bg-white/5"
+                              "w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm",
+                              step === s.id ? "bg-primary text-white" : "bg-white border border-slate-200"
                             )}>
-                               <phase.icon className="w-5 h-5 text-white" />
+                               <s.icon className={cn("w-5 h-5", step === s.id ? "text-white" : "text-slate-400")} />
                             </div>
                             <div>
-                               <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">Step 0{phase.id}</p>
-                               <h4 className="text-sm font-black text-white tracking-widest uppercase">{phase.label}</h4>
+                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Step 0{s.id}</p>
+                               <h4 className="text-xs font-black text-slate-900 uppercase tracking-wide">{s.label}</h4>
                             </div>
                          </div>
-                         {phase.id < 4 && (
-                           <div className="absolute left-[23px] top-12 w-px h-12 bg-white/10" />
-                         )}
                       </div>
                     ))}
                  </div>
 
-                 <div className="mt-auto p-6 hyper-glass rounded-[2rem] border-white/5">
-                    <p className="text-[10px] font-bold text-slate-400 leading-relaxed italic">
-                      "Every structural detail strengthens the portfolio's integrity."
+                 <div className="mt-auto p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                    <p className="text-[10px] font-bold text-slate-500 leading-relaxed italic">
+                      "Ensure all property details are accurate for better management."
                     </p>
                  </div>
               </div>
 
               {/* CONTENT AREA */}
-              <div className="flex-1 flex flex-col h-full bg-slate-900/40 backdrop-blur-md overflow-hidden">
+              <div className="flex-1 flex flex-col h-full bg-white overflow-hidden">
                  
                  {/* Header */}
-                 <div className="px-12 py-10 flex items-center justify-between">
+                 <div className="px-10 py-8 flex items-center justify-between border-b border-slate-100">
                     <div>
-                       <div className="flex items-center gap-3 mb-2">
-                          <div className={cn("w-2 h-2 rounded-full animate-pulse", "bg-" + activePhase.color + "-500")} />
-                          <span className={cn("text-[10px] font-black uppercase tracking-[0.4em]", "text-" + activePhase.color + "-400")}>
-                             {activePhase.label} Matrix
+                       <div className="flex items-center gap-2 mb-1">
+                          <div className={cn("w-2 h-2 rounded-full", "bg-primary")} />
+                          <span className={cn("text-[10px] font-black uppercase tracking-widest text-slate-400")}>
+                             {STEPS[step-1].label}
                           </span>
                        </div>
-                       <h3 className="text-5xl font-black text-white tracking-tighter">
-                          {step === 1 ? 'Asset Discovery' : step === 2 ? 'Identity Profile' : step === 3 ? 'Economics Hub' : 'Visual Payload'}
+                       <h3 className="text-3xl font-black text-slate-900 tracking-tighter">
+                          {step === 1 ? 'Primary Information' : 'Financials & Visuals'}
                        </h3>
                     </div>
-                    <button onClick={onClose} className="p-4 hover:bg-white/5 rounded-full text-slate-500 transition-all active:scale-75">
-                       <X className="w-10 h-10" />
+                    <button onClick={onClose} className="p-3 hover:bg-slate-100 rounded-2xl text-slate-400 transition-all active:scale-75">
+                       <X className="w-6 h-6" />
                     </button>
                  </div>
 
                  {/* Step Content */}
-                 <div className="flex-1 overflow-y-auto px-12 pb-12 no-scrollbar">
+                 <div className="flex-1 overflow-y-auto px-10 py-10 no-scrollbar">
                     <AnimatePresence mode="wait">
                        {step === 1 && (
                          <motion.div 
                            key="s1" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-                           className="grid grid-cols-1 md:grid-cols-3 gap-8"
+                           className="space-y-10"
                          >
-                            {PROPERTY_TYPES.map((type) => (
-                              <button
-                                key={type.id}
-                                onClick={() => {
-                                  setFormData(fd => ({ ...fd, property_type: type.id as any }));
-                                  setStep(2);
-                                }}
-                                className={cn(
-                                  "relative text-left p-10 rounded-[3rem] border-2 transition-all group flex flex-col gap-8 overflow-hidden h-96 hyper-glass hover:bg-white/5",
-                                  formData.property_type === type.id ? "border-" + activePhase.color + "-500/50" : "border-white/5"
-                                )}
-                              >
-                                <div className={cn("w-24 h-24 rounded-[2.5rem] bg-white/5 flex items-center justify-center shrink-0 transition-all group-hover:scale-110 group-hover:rotate-6")}>
-                                  <type.icon className={cn("w-12 h-12 text-white")} />
-                                </div>
-                                <div>
-                                  <h3 className="font-black text-white text-3xl tracking-tighter mb-4">
-                                    {language === 'so' ? type.labelSo : type.label}
-                                  </h3>
-                                  <p className="text-sm text-slate-400 font-medium leading-relaxed">
-                                    {language === 'so' ? type.descSo : type.description}
-                                  </p>
-                                </div>
-                                <div className="mt-auto flex items-center justify-between">
-                                   <div className="px-4 py-2 bg-white/5 rounded-xl border border-white/10 text-[10px] font-black text-white/40 uppercase tracking-widest">Select Category</div>
-                                   <div className="w-12 h-12 rounded-full hyper-glass flex items-center justify-center group-hover:bg-indigo-500 transition-colors">
-                                      <ChevronRight className="w-6 h-6 text-white" />
+                            {/* Property Type Selection */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                               {PROPERTY_TYPES.map((type) => (
+                                 <button
+                                   key={type.id}
+                                   onClick={() => setFormData(fd => ({ ...fd, property_type: type.id as any }))}
+                                   className={cn(
+                                     "relative text-left p-6 rounded-3xl border-2 transition-all group flex flex-col gap-4 overflow-hidden shadow-sm",
+                                     formData.property_type === type.id 
+                                      ? "border-primary bg-primary/5" 
+                                      : "border-slate-100 bg-white hover:border-primary/20"
+                                   )}
+                                 >
+                                   <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-all", 
+                                     formData.property_type === type.id ? "bg-primary text-white" : "bg-slate-50 text-slate-400")}>
+                                     <type.icon className="w-6 h-6" />
                                    </div>
-                                </div>
-                              </button>
-                            ))}
+                                   <div>
+                                     <h3 className={cn("font-black text-sm tracking-tight mb-1", 
+                                       formData.property_type === type.id ? "text-primary" : "text-slate-900")}>
+                                       {language === 'so' ? type.labelSo : type.label}
+                                     </h3>
+                                     <p className="text-[11px] text-slate-500 font-medium leading-normal line-clamp-2">
+                                       {language === 'so' ? type.descSo : type.description}
+                                     </p>
+                                   </div>
+                                 </button>
+                               ))}
+                            </div>
+
+                            <div className="space-y-8 max-w-2xl">
+                               <div className="space-y-3">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Property Name / Label</label>
+                                  <div className="relative group">
+                                    <Building2 className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-primary transition-colors" />
+                                    <input
+                                      type="text" required value={formData.name}
+                                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-14 pr-6 outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all font-bold text-lg text-slate-900 placeholder:text-slate-300"
+                                      placeholder="e.g. Al-Hayat Tower"
+                                    />
+                                  </div>
+                               </div>
+
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                  <div className="space-y-3">
+                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">District / Location</label>
+                                     <div className="relative group">
+                                       <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 pointer-events-none" />
+                                       <select
+                                         required value={formData.district_id}
+                                         onChange={(e) => setFormData({ ...formData, district_id: e.target.value })}
+                                         className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-14 pr-10 outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all font-bold text-slate-900 appearance-none cursor-pointer"
+                                       >
+                                         <option value="">Select District</option>
+                                         {districts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                                       </select>
+                                     </div>
+                                  </div>
+                                  <div className="space-y-3">
+                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Address Detail</label>
+                                     <input
+                                       type="text" value={formData.address}
+                                       onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                                       className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-6 outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all font-bold text-slate-900"
+                                       placeholder="Street name, landmark..."
+                                     />
+                                  </div>
+                               </div>
+
+                               <div className="space-y-3">
+                                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Description (Optional)</label>
+                                  <textarea
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-6 outline-none h-32 resize-none font-medium text-slate-600 leading-relaxed"
+                                    placeholder="Add any specific details about the property..."
+                                  />
+                               </div>
+                            </div>
                          </motion.div>
                        )}
 
                        {step === 2 && (
                          <motion.div 
                            key="s2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                           className="max-w-3xl space-y-12"
+                           className="space-y-10"
                          >
-                            <div className="space-y-4">
-                               <label className="text-[11px] font-black text-blue-400 uppercase tracking-[0.4em] ml-1">Asset Nomenclature</label>
-                               <div className="relative group">
-                                 <Building2 className="absolute left-6 top-1/2 -translate-y-1/2 w-8 h-8 text-white/20 group-focus-within:text-blue-500 transition-colors" />
-                                 <input
-                                   type="text" required value={formData.name}
-                                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                   className="w-full bg-white/5 border border-white/10 rounded-[2.5rem] py-8 pl-20 pr-10 outline-none focus:ring-[20px] focus:ring-blue-500/5 focus:border-blue-500/50 transition-all font-black text-4xl text-white tracking-tighter placeholder:text-white/10"
-                                   placeholder="AL-HAYAT TOWER..."
-                                 />
-                               </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                               <div className="space-y-4">
-                                  <label className="text-[11px] font-black text-blue-400 uppercase tracking-[0.4em] ml-1">District Node</label>
-                                  <div className="relative group">
-                                    <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-white/20" />
-                                    <select
-                                      required value={formData.district_id}
-                                      onChange={(e) => setFormData({ ...formData, district_id: e.target.value })}
-                                      className="w-full bg-white/5 border border-white/10 rounded-3xl py-6 pl-16 pr-10 outline-none focus:border-blue-500/50 transition-all font-black text-xl text-white appearance-none cursor-pointer"
-                                    >
-                                      <option value="" className="bg-slate-900">Select Node</option>
-                                      {districts.map(d => <option key={d.id} value={d.id} className="bg-slate-900">{d.name}</option>)}
-                                    </select>
-                                  </div>
-                               </div>
-                               <div className="space-y-4">
-                                  <label className="text-[11px] font-black text-blue-400 uppercase tracking-[0.4em] ml-1">Physical Address</label>
-                                  <input
-                                    type="text" value={formData.address}
-                                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-3xl py-6 px-10 outline-none focus:border-blue-500/50 transition-all font-black text-xl text-white tracking-tight"
-                                    placeholder="Main Street, Near Intersection"
-                                  />
-                               </div>
-                            </div>
-                         </motion.div>
-                       )}
-
-                       {step === 3 && (
-                         <motion.div 
-                           key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                           className="max-w-3xl space-y-16"
-                         >
-                            <div className="p-16 rounded-[4rem] bg-emerald-500/5 border border-emerald-500/20 relative overflow-hidden group hover:neon-glow-emerald transition-all duration-700">
-                               <label className="text-sm font-black text-emerald-400 uppercase tracking-[0.4em] block mb-8 text-center italic">TARGET MONTHLY REVENUE (USD)</label>
-                               <div className="relative">
-                                  <DollarSign className="absolute left-0 top-1/2 -translate-y-1/2 w-16 h-16 text-emerald-500/30" />
-                                  <input
-                                    type="number" required value={formData.rent_amount}
-                                    onChange={(e) => setFormData({ ...formData, rent_amount: Number(e.target.value) })}
-                                    className="w-full bg-transparent border-none text-center outline-none font-black text-[120px] text-white tracking-tighter leading-none"
-                                    placeholder="0"
-                                  />
-                               </div>
-                               <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </div>
-
-                            <div className="space-y-6">
-                               <label className="text-[11px] font-black text-emerald-400 uppercase tracking-[0.4em] ml-1">Operational Readiness</label>
-                               <div className="grid grid-cols-3 gap-8">
-                                 {(['available', 'occupied', 'maintenance'] as const).map((s) => (
-                                   <button
-                                     key={s} type="button" onClick={() => setFormData({ ...formData, status: s })}
-                                     className={cn(
-                                       "py-8 rounded-[2rem] text-[10px] font-black uppercase tracking-[0.3em] transition-all border flex flex-col items-center gap-4",
-                                       formData.status === s ? "bg-emerald-600 border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.4)] text-white scale-105" : "bg-white/5 border-white/10 text-slate-500 hover:border-emerald-500/30"
-                                     )}
-                                   >
-                                      <div className={cn("w-3 h-3 rounded-full", formData.status === s ? "bg-white animate-pulse" : "bg-slate-700")} />
-                                      {s}
-                                   </button>
-                                 ))}
-                               </div>
-                            </div>
-                         </motion.div>
-                       )}
-
-                       {step === 4 && (
-                         <motion.div 
-                           key="s4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                           className="space-y-12"
-                         >
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                                <div className="space-y-8">
-                                  <div className="flex items-center justify-between">
-                                     <h4 className="text-2xl font-black text-white tracking-tighter">Asset Imagery Container</h4>
-                                     <button
-                                       type="button" onClick={() => setFormData({ ...formData, images: [...formData.images, ''] })}
-                                       className="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center neon-glow-amber text-white transition-all active:scale-75"
-                                     >
-                                        <Plus className="w-6 h-6" />
-                                     </button>
+                                  <div className="p-10 rounded-[2.5rem] bg-slate-50 border border-slate-200 relative overflow-hidden group">
+                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-4 text-center">MONTHLY RENT (USD)</label>
+                                     <div className="relative">
+                                        <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 text-primary/30" />
+                                        <input
+                                          type="number" required value={formData.rent_amount}
+                                          onChange={(e) => setFormData({ ...formData, rent_amount: Number(e.target.value) })}
+                                          className="w-full bg-transparent border-none text-center outline-none font-black text-7xl text-slate-900 tracking-tighter"
+                                          placeholder="0"
+                                        />
+                                     </div>
                                   </div>
-                                  <div className="space-y-4 max-h-[400px] overflow-y-auto pr-4 no-scrollbar">
-                                    {formData.images.map((img, idx) => (
-                                      <div key={idx} className="flex gap-4">
-                                         <input
-                                           type="text" value={img}
-                                           onChange={(e) => {
-                                             const newImgs = [...formData.images];
-                                             newImgs[idx] = e.target.value;
-                                             setFormData({ ...formData, images: newImgs });
-                                           }}
-                                           className="flex-1 bg-white/5 border border-white/10 rounded-[1.5rem] py-5 px-8 text-xs font-black text-amber-200 outline-none focus:border-amber-500/50"
-                                           placeholder="HTTPS://CDN.RESOURCE..."
-                                         />
-                                         <button
-                                           type="button" onClick={() => setFormData({ ...formData, images: formData.images.filter((_, i) => i !== idx) })}
-                                           className="p-5 bg-rose-500/10 text-rose-500 rounded-2xl border border-rose-500/20"
-                                         >
-                                           <Trash2 className="w-5 h-5" />
-                                         </button>
-                                      </div>
-                                    ))}
-                                    {formData.images.length === 0 && (
-                                       <div className="h-40 rounded-[3rem] border-2 border-dashed border-white/5 flex flex-col items-center justify-center text-slate-600 gap-4 grayscale">
-                                          <Image className="w-12 h-12" />
-                                          <span className="text-[10px] font-black uppercase tracking-[0.4em]">Empty Visual Buffer</span>
-                                       </div>
-                                    )}
-                                  </div>
-                               </div>
 
-                               <div className="space-y-8">
                                   <div className="space-y-4">
-                                     <label className="text-[11px] font-black text-amber-400 uppercase tracking-[0.4em] ml-1">Structural Briefing</label>
-                                     <textarea
-                                       value={formData.description}
-                                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                       className="w-full bg-white/5 border border-white/10 rounded-[2.5rem] p-10 outline-none h-[350px] resize-none font-bold text-slate-300 leading-relaxed text-lg"
-                                       placeholder="Provide depth on architectural features and strategic asset value..."
+                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Current Status</label>
+                                     <div className="grid grid-cols-3 gap-3">
+                                       {(['available', 'occupied', 'maintenance'] as const).map((s) => (
+                                         <button
+                                           key={s} type="button" onClick={() => setFormData({ ...formData, status: s })}
+                                           className={cn(
+                                             "py-4 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all border",
+                                             formData.status === s 
+                                              ? "bg-slate-900 border-slate-900 text-white shadow-lg" 
+                                              : "bg-white border-slate-200 text-slate-400 hover:border-slate-300"
+                                           )}
+                                         >
+                                            {s}
+                                         </button>
+                                       ))}
+                                     </div>
+                                  </div>
+
+                                  <div className="space-y-4">
+                                     <div className="flex items-center justify-between">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Property Images</label>
+                                        <button
+                                          type="button" onClick={() => setFormData({ ...formData, images: [...formData.images, ''] })}
+                                          className="text-primary hover:bg-primary/5 p-2 rounded-lg transition-all"
+                                        >
+                                           <Plus className="w-5 h-5" />
+                                        </button>
+                                     </div>
+                                     <div className="space-y-3 max-h-[200px] overflow-y-auto pr-3 no-scrollbar">
+                                       {formData.images.map((img, idx) => (
+                                         <div key={idx} className="flex gap-2">
+                                            <input
+                                              type="text" value={img}
+                                              onChange={(e) => {
+                                                const newImgs = [...formData.images];
+                                                newImgs[idx] = e.target.value;
+                                                setFormData({ ...formData, images: newImgs });
+                                              }}
+                                              className="flex-1 bg-slate-50 border border-slate-200 rounded-xl py-3 px-5 text-xs font-bold text-slate-700 outline-none focus:border-primary transition-all"
+                                              placeholder="Paste image URL here..."
+                                            />
+                                            <button
+                                              type="button" onClick={() => setFormData({ ...formData, images: formData.images.filter((_, i) => i !== idx) })}
+                                              className="p-3 text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
+                                            >
+                                              <Trash2 className="w-4 h-4" />
+                                            </button>
+                                         </div>
+                                       ))}
+                                     </div>
+                                  </div>
+                               </div>
+
+                               <div className="space-y-8">
+                                  <div className="p-8 rounded-[2.5rem] bg-slate-50 border border-slate-200">
+                                     <h4 className="text-sm font-black text-slate-900 mb-6 flex items-center gap-2">
+                                        <Info className="w-4 h-4 text-primary" />
+                                        Property Specifications
+                                     </h4>
+                                     <div className="grid grid-cols-2 gap-4">
+                                        {formData.property_type === 'Apartment' ? (
+                                          <>
+                                            <div className="space-y-2">
+                                               <label className="text-[9px] font-black text-slate-400 uppercase">Bedrooms</label>
+                                               <input 
+                                                 type="number" value={formData.bedrooms}
+                                                 onChange={(e) => setFormData({...formData, bedrooms: Number(e.target.value)})}
+                                                 className="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 font-bold text-slate-900"
+                                               />
+                                            </div>
+                                            <div className="space-y-2">
+                                               <label className="text-[9px] font-black text-slate-400 uppercase">Bathrooms</label>
+                                               <input 
+                                                 type="number" value={formData.bathrooms}
+                                                 onChange={(e) => setFormData({...formData, bathrooms: Number(e.target.value)})}
+                                                 className="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 font-bold text-slate-900"
+                                               />
+                                            </div>
+                                            <div className="space-y-2">
+                                               <label className="text-[9px] font-black text-slate-400 uppercase">Kitchens</label>
+                                               <input 
+                                                 type="number" value={formData.kitchens}
+                                                 onChange={(e) => setFormData({...formData, kitchens: Number(e.target.value)})}
+                                                 className="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 font-bold text-slate-900"
+                                               />
+                                            </div>
+                                            <div className="space-y-2">
+                                               <label className="text-[9px] font-black text-slate-400 uppercase">Building No.</label>
+                                               <input 
+                                                 type="number" value={formData.building_number || ''}
+                                                 onChange={(e) => setFormData({...formData, building_number: Number(e.target.value)})}
+                                                 className="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 font-bold text-slate-900"
+                                                 placeholder="Optional"
+                                               />
+                                            </div>
+                                          </>
+                                        ) : (
+                                          <div className="col-span-2 space-y-2">
+                                             <label className="text-[9px] font-black text-slate-400 uppercase">Floor Area (m²)</label>
+                                             <input 
+                                               type="number" value={formData.floor_area || ''}
+                                               onChange={(e) => setFormData({...formData, floor_area: Number(e.target.value)})}
+                                               className="w-full bg-white border border-slate-200 rounded-xl py-4 px-6 font-black text-2xl text-slate-900"
+                                               placeholder="e.g. 150"
+                                             />
+                                          </div>
+                                        )}
+                                     </div>
+                                  </div>
+
+                                  <div className="space-y-3">
+                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Video Tour (URL)</label>
+                                     <input
+                                       type="text" value={formData.video_url}
+                                       onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+                                       className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-6 outline-none focus:border-primary transition-all font-bold text-slate-900"
+                                       placeholder="Youtube or Matterport link..."
                                      />
                                   </div>
                                </div>
@@ -420,44 +448,41 @@ const PropertyModal = ({ isOpen, onClose, property }: PropertyModalProps) => {
                     </AnimatePresence>
                  </div>
 
-                 {/* ACTION MATRIX */}
-                 <div className="px-12 py-12 flex items-center justify-between border-t border-white/5 bg-black/20 backdrop-blur-3xl">
-                    <div className="flex gap-6">
-                       <button
-                         type="button" onClick={onClose}
-                         className="px-10 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-white transition-colors"
-                       >
-                         Abort Mission
-                       </button>
+                 {/* ACTION BAR */}
+                 <div className="px-10 py-8 flex items-center justify-between border-t border-slate-100 bg-slate-50/50">
+                    <div>
                        {step > 1 && (
                          <button
-                           type="button" onClick={() => setStep((s) => (s - 1) as any)}
-                           className="px-10 py-5 bg-white/5 rounded-3xl text-[10px] font-black text-white uppercase tracking-widest hover:bg-white/10"
+                           type="button" onClick={() => setStep(1)}
+                           className="px-8 py-4 bg-white border border-slate-200 rounded-2xl text-[10px] font-black text-slate-500 uppercase tracking-widest hover:border-slate-300 transition-all active:scale-95"
                          >
-                           <ArrowLeft className="w-5 h-5 mr-3 inline" />
-                           Regression
+                           <ArrowLeft className="w-4 h-4 mr-2 inline" />
+                           Previous
                          </button>
                        )}
                     </div>
 
-                    <div className="flex gap-6">
-                       {step < 4 ? (
+                    <div className="flex gap-4">
+                       <button
+                         type="button" onClick={onClose}
+                         className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors"
+                       >
+                         Cancel
+                       </button>
+                       {step < 2 ? (
                          <button
-                           type="button" onClick={() => setStep((s) => (s + 1) as any)}
-                           className={cn(
-                             "px-12 py-6 rounded-3xl text-[11px] font-black text-white uppercase tracking-[0.4em] transition-all hover:scale-105 active:scale-95",
-                             "bg-" + activePhase.color + "-600 " + activePhase.glow
-                           )}
+                           type="button" onClick={() => setStep(2)}
+                           className="px-10 py-4 bg-primary rounded-2xl text-[10px] font-black text-white uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
                          >
-                           Proceed Matrix
-                           <ChevronRight className="w-5 h-5 ml-4 inline" />
+                           Continue
+                           <ChevronRight className="w-4 h-4 ml-2 inline" />
                          </button>
                        ) : (
                          <button
                            type="button" onClick={handleSubmit}
-                           className="px-16 py-6 bg-emerald-600 neon-glow-emerald rounded-3xl text-[11px] font-black text-white uppercase tracking-[0.5em] transition-all hover:scale-110 active:scale-95"
+                           className="px-12 py-4 bg-primary rounded-2xl text-[10px] font-black text-white uppercase tracking-[0.2em] shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-all"
                          >
-                           Finalize Deployment
+                           Save Property
                          </button>
                        )}
                     </div>

@@ -70,13 +70,13 @@ const AIInsightHub = () => {
               </div>
               <div>
                 <h3 className="text-2xl font-black text-slate-900 tracking-tighter">
-                  {language === 'so' ? 'Malaika AI Advisor' : 'Malaika Intelligence'}
+                  {language === 'so' ? 'Warbixinta Guud' : 'Portfolio Insights'}
                 </h3>
                 <div className="flex items-center gap-2 mt-1">
                    <div className="flex gap-0.5">
                       {[1,2,3].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-primary/20 animate-pulse" style={{ animationDelay: `${i*0.2}s` }} />)}
                    </div>
-                   <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em]">Live Portfolio Analysis</p>
+                   <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em]">Automated Analysis</p>
                 </div>
               </div>
             </div>
@@ -115,8 +115,8 @@ const AIInsightHub = () => {
                  <div className="w-3 h-3 bg-primary rounded-full relative" />
               </div>
               <div>
-                <p className="text-[11px] font-black text-white uppercase tracking-[0.2em]">Active Coverage</p>
-                <p className="text-[10px] text-slate-400 font-bold">Comprehensive data synchronization successful</p>
+                <p className="text-[11px] font-black text-white uppercase tracking-[0.2em]">System Status</p>
+                <p className="text-[10px] text-slate-400 font-bold">All property data is up to date</p>
               </div>
             </div>
             <button className="px-6 py-3 bg-white/5 hover:bg-white/10 text-[10px] font-black text-white uppercase tracking-widest rounded-xl transition-all border border-white/5">

@@ -61,8 +61,8 @@ const DashboardPage = () => {
   const overdueCount = payments.filter(p => p.status === 'overdue').length;
 
   const stats = [
-    { 
-      title: language === 'so' ? 'Guryaha Guud' : 'Total Portfolio Assets', 
+      { 
+      title: language === 'so' ? 'Guryaha Guud' : 'Total Properties', 
       value: totalProperties.toString(), 
       icon: Building2, 
       color: 'bg-indigo-600',
@@ -70,7 +70,7 @@ const DashboardPage = () => {
       chartData: Array.from({ length: 15 }, () => ({ value: 20 + Math.random() * 40 }))
     },
     { 
-      title: language === 'so' ? 'Kiraystayaasha' : 'Occupancy Velocity', 
+      title: language === 'so' ? 'Kiraystayaasha' : 'Occupancy Rate', 
       value: `${properties.length > 0 ? Math.round((activeTenants / properties.length) * 100) : 0}%`, 
       icon: Users, 
       color: 'bg-blue-600',
@@ -78,7 +78,7 @@ const DashboardPage = () => {
       chartData: Array.from({ length: 15 }, () => ({ value: 30 + Math.random() * 20 }))
     },
     { 
-      title: language === 'so' ? 'Dakhliga (Guud)' : 'Aggregate Revenue', 
+      title: language === 'so' ? 'Dakhliga (Guud)' : 'Monthly Income', 
       value: currency === 'USD' ? `$${monthlyIncome.toLocaleString()}` : `SOS ${(monthlyIncome * 25000).toLocaleString()}`, 
       icon: DollarSign, 
       color: 'bg-emerald-600',
@@ -86,7 +86,7 @@ const DashboardPage = () => {
       chartData: Array.from({ length: 15 }, () => ({ value: 10 + Math.random() * 80 }))
     },
     { 
-      title: language === 'so' ? 'Lacag-dhiman' : 'Delinquency Rate', 
+      title: language === 'so' ? 'Lacag-dhiman' : 'Overdue Payments', 
       value: overdueCount.toString(), 
       icon: AlertCircle, 
       color: 'bg-rose-600',
@@ -122,27 +122,27 @@ const DashboardPage = () => {
             <div className="flex items-center gap-4 mb-8">
                <div className="px-5 py-2 bg-white/5 backdrop-blur-3xl border border-white/10 rounded-2xl flex items-center gap-3">
                   <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_15px_#10B981] animate-pulse" />
-                  <span className="text-[10px] font-black text-white uppercase tracking-[0.4em]">Operational Stream Active</span>
+                  <span className="text-[10px] font-black text-white uppercase tracking-[0.4em]">System Active</span>
                </div>
                <div className="w-12 h-px bg-white/10" />
-               <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em]">District Node: MGQ.01</span>
+               <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em]">Mogadishu Portfolio</span>
             </div>
             
             <h1 className="text-6xl md:text-9xl font-black text-white tracking-tighter leading-[0.85] mb-8">
-               CORE<br/>
-               <span className="text-emerald-400 drop-shadow-[0_0_30px_rgba(16,185,129,0.3)]">COMMAND</span>
+               RENTAL<br/>
+               <span className="text-primary drop-shadow-[0_0_30px_rgba(var(--primary),0.3)]">OVERVIEW</span>
             </h1>
             
             <p className="text-lg text-slate-400 font-bold max-w-lg leading-relaxed border-l-2 border-white/10 pl-8 ml-2">
-               Enterprise-grade portfolio orchestration hub for Mogadishu multi-unit assets and high-yield real estate networks.
+               Manage your properties, tenants, and payments with ease. Real-time insights into your portfolio.
             </p>
           </div>
 
           {/* Rapid Interaction Interface */}
           <div className="grid grid-cols-2 sm:flex gap-4">
              {[
-               { id: 'property', label: 'DEPLOY ASSET', icon: Plus, color: 'bg-emerald-600 neon-glow-emerald', accent: 'border-emerald-500/30' },
-               { id: 'payment', label: 'SYNC REVENUE', icon: Activity, color: 'bg-blue-600 neon-glow-primary', accent: 'border-blue-500/30' },
+               { id: 'property', label: language === 'so' ? 'KUDAR GURI' : 'ADD PROPERTY', icon: Plus, color: 'bg-primary neon-glow-primary', accent: 'border-primary/30' },
+               { id: 'payment', label: language === 'so' ? 'BIXIN LACAG' : 'RECORD PAYMENT', icon: Activity, color: 'bg-blue-600 neon-glow-primary', accent: 'border-blue-500/30' },
              ].map(btn => (
                 <button 
                   key={btn.id}

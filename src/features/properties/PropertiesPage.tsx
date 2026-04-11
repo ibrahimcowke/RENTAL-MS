@@ -132,13 +132,13 @@ const PropertiesPage = () => {
             <div>
               <div className="flex items-center gap-2 text-primary font-black text-[10px] tracking-[0.2em] mb-2 px-1">
                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                REAL-TIME PORTFOLIO INTELLIGENCE
+                PROPERTY PORTFOLIO
               </div>
               <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-white transition-all group-hover:tracking-normal whitespace-nowrap">
                 {language === 'so' ? 'Maamulka Guryaha' : 'Property Inventory'}
               </h1>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mt-2 ml-1">
-                {language === 'so' ? 'Maamul guryahaaga iyo dakhliga.' : 'Strategic Asset Management & Oversight'}
+                {language === 'so' ? 'Maamul guryahaaga iyo dakhliga.' : 'Oversee units and rental income'}
               </p>
             </div>
           </div>
@@ -165,7 +165,7 @@ const PropertiesPage = () => {
               className="px-8 py-3.5 bg-primary hover:bg-primary/90 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 shadow-xl shadow-primary/20 active:scale-95 border-none"
             >
               <Plus className="w-5 h-5" />
-              {language === 'so' ? 'Ku dar Guri' : 'Initialize Asset'}
+              {language === 'so' ? 'Ku dar Guri' : 'Add Property'}
             </button>
           </div>
         </div>
@@ -349,7 +349,7 @@ const PropertiesPage = () => {
                   {/* Pricing Over Image */}
                   <div className="absolute bottom-4 left-4 right-4 z-20 flex justify-between items-end">
                     <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-2xl p-3 px-4 shadow-2xl">
-                       <p className="text-[8px] font-black text-white/60 uppercase tracking-widest mb-0.5">Asset Valuation</p>
+                       <p className="text-[8px] font-black text-white/60 uppercase tracking-widest mb-0.5">Rent Amount</p>
                        <p className="text-xl font-black text-white">${property.rent_amount.toLocaleString()}</p>
                     </div>
                     {property.images && property.images.length > 0 && (
@@ -442,7 +442,7 @@ const PropertiesPage = () => {
                           typeMeta.gradient.replace('/20','').replace('/10','').replace('from-','bg-')
                         )}
                       >
-                        Explore Asset Sections
+                        Explore Property Units
                         <ChevronRight className="w-4 h-4" />
                       </button>
                     ) : (

@@ -67,7 +67,7 @@ const TenantModal = ({ isOpen, onClose, tenant }: TenantModalProps) => {
   };
 
   const steps = [
-    { id: 1, label: language === 'so' ? 'Aqoon-jir' : 'Resident Identity', icon: UserPlus },
+    { id: 1, label: language === 'so' ? 'Faahfaahin' : 'Tenant Details', icon: UserPlus },
     { id: 2, label: language === 'so' ? 'Heshiiska' : 'Lease Agreement', icon: Star },
   ];
 
@@ -96,9 +96,9 @@ const TenantModal = ({ isOpen, onClose, tenant }: TenantModalProps) => {
                <div className="flex justify-between items-start relative z-10 mb-8">
                  <div>
                     <h2 className="text-3xl font-black text-white tracking-tighter">
-                      {tenant ? 'UPDATE RESIDENT' : 'DEPLOY RESIDENT'}
+                      {tenant ? 'UPDATE TENANT' : 'ADD NEW TENANT'}
                     </h2>
-                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mt-1">Operational Lifecycle V4.0</p>
+                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mt-1">Tenant Registration</p>
                  </div>
                  <button onClick={onClose} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-all">
                     <X className="w-6 h-6" />
@@ -133,7 +133,7 @@ const TenantModal = ({ isOpen, onClose, tenant }: TenantModalProps) => {
                     >
                       <div className="grid grid-cols-2 gap-6">
                         <div className="col-span-2">
-                          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Full Identity Name</label>
+                          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Full Legal Name</label>
                           <input 
                             type="text" 
                             required
@@ -144,7 +144,7 @@ const TenantModal = ({ isOpen, onClose, tenant }: TenantModalProps) => {
                           />
                         </div>
                         <div>
-                          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Phone Terminal</label>
+                          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Contact Phone</label>
                           <input 
                             type="text" 
                             required
@@ -155,7 +155,7 @@ const TenantModal = ({ isOpen, onClose, tenant }: TenantModalProps) => {
                           />
                         </div>
                         <div>
-                          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Family Unit Size</label>
+                          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Family Members</label>
                           <input 
                             type="number" 
                             required
@@ -216,7 +216,7 @@ const TenantModal = ({ isOpen, onClose, tenant }: TenantModalProps) => {
                       onClick={() => setStep(step - 1)}
                       className="flex-1 px-8 py-5 border border-slate-200 text-slate-400 font-black text-[10px] tracking-widest uppercase rounded-2xl hover:bg-white transition-all active:scale-95"
                     >
-                      Back Sequence
+                      Back
                     </button>
                   )}
                   {step < steps.length ? (
@@ -224,14 +224,14 @@ const TenantModal = ({ isOpen, onClose, tenant }: TenantModalProps) => {
                       onClick={() => setStep(step + 1)}
                       className="flex-1 px-8 py-5 bg-slate-900 text-white font-black text-[10px] tracking-widest uppercase rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all"
                     >
-                      Next Phase
+                      Next
                     </button>
                   ) : (
                     <button 
                       onClick={handleSubmit}
                       className="flex-1 px-8 py-5 bg-primary text-white font-black text-[10px] tracking-widest uppercase rounded-2xl shadow-xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all"
                     >
-                      Confirm Deployment
+                      {tenant ? 'Save Changes' : 'Add Tenant'}
                     </button>
                   )}
                </div>
